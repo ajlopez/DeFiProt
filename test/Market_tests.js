@@ -11,6 +11,10 @@ contract('Market', function (accounts) {
         const balance = await market.balanceOf(alice);
         
         assert.equal(balance, 0);
+        
+        const totalSupply = await market.totalSupply();
+        
+        assert.equal(totalSupply, 0);
     });
     
     it('mint amount', async function () {
@@ -23,6 +27,10 @@ contract('Market', function (accounts) {
         
         assert.equal(aliceBalance, 1000);
         assert.equal(bobBalance, 0);
+        
+        const totalSupply = await market.totalSupply();
+        
+        assert.equal(totalSupply, 1000);
     });
 });
 
