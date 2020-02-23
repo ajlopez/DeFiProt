@@ -20,5 +20,11 @@ contract Market {
         balances[msg.sender] += amount;
         totalSupply += amount;
     }
+    
+    function redeem(uint amount) public {
+        require(token.transfer(msg.sender, amount), "No enough tokens");
+        balances[msg.sender] -= amount;
+        totalSupply -= amount;
+    }
 }
 
