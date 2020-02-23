@@ -1,6 +1,7 @@
 
 const Market = artifacts.require('./Market.sol');
 const Token = artifacts.require('./test/FaucetToken.sol');
+const Controller = artifacts.require('./Controller.sol');
 
 const expectThrow = require('./utils').expectThrow;
 
@@ -11,6 +12,7 @@ contract('Market', function (accounts) {
     beforeEach(async function() {
         this.token = await Token.new(1000000, "Token", 0, "TOK");
         this.market = await Market.new(this.token.address);
+        this.controller = await Controller.new();
     });
     
     it('initial balance zero', async function () {
@@ -113,6 +115,28 @@ contract('Market', function (accounts) {
         const newTotalSupply = await this.market.totalSupply();
         
         assert.equal(newTotalSupply, 1000);
+    });
+    
+    it('no controller', async function () {
+        const controller = await this.market.controller();
+        
+        assert.equal(controller, 0);
+    });
+    
+    it('set controller', async function () {
+        await this.market.setController(this.controller.address);
+        
+        const controller = await this.market.controller();
+        
+        assert.equal(controller, this.controller.address);
+    });
+    
+    it('only owner can set controller', async function () {
+        expectThrow(this.market.setController(this.controller));
+        
+        const controller = await this.market.controller();
+        
+        assert.equal(controller, 0);
     });
 });
 

@@ -1,18 +1,33 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 import "./test/ERC20.sol";
+import "./Controller.sol";
 
-contract Market {
+
+contract Market is MarketInterface {
+    address public owner;
     ERC20 public token;
+    Controller public controller;
     uint public totalSupply;
+    uint public lockedSupply;
     mapping (address => uint) balances;
     
     constructor(ERC20 _token) public {
+        owner = msg.sender;
         token = _token;
+    }
+    
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
     }
     
     function balanceOf(address user) public view returns (uint) {
         return balances[user];
+    }
+    
+    function setController(Controller _controller) public onlyOwner {
+        controller = _controller;
     }
     
     function mint(uint amount) public {
