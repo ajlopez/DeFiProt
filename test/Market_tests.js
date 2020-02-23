@@ -18,43 +18,55 @@ contract('Market', function (accounts) {
     });
     
     it('initial deposits are zero', async function () {
-        const deposits = await this.market.depositsOf(alice);
+        const deposits = await this.market.balanceOf(alice);
         
         assert.equal(deposits, 0);
         
         const marketBalance = await this.token.balanceOf(this.market.address);
         
         assert.equal(marketBalance, 0);
+        
+        const totalSupply = await this.market.totalSupply();
+        
+        assert.equal(totalSupply, 0);
     });
     
     it('mint amount', async function () {
         await this.token.approve(this.market.address, 1000, { from: alice });
         await this.market.mint(1000, { from: alice });
         
-        const aliceDeposits = await this.market.depositsOf(alice);
-        const bobDeposits = await this.market.depositsOf(bob);
+        const aliceMarketBalance = await this.market.balanceOf(alice);
+        const bobMarketBalance = await this.market.balanceOf(bob);
         
-        assert.equal(aliceDeposits, 1000);
-        assert.equal(bobDeposits, 0);
+        assert.equal(aliceMarketBalance, 1000);
+        assert.equal(bobMarketBalance, 0);
         
         const marketBalance = await this.token.balanceOf(this.market.address);
         
         assert.equal(marketBalance, 1000);
+        
+        const totalSupply = await this.market.totalSupply();
+        
+        assert.equal(totalSupply, 1000);
     });
     
     it('cannot mint amount without enough tokens', async function () {
         await this.token.approve(this.market.address, 500, { from: alice });
         expectThrow(this.market.mint(1000, { from: alice }));
         
-        const aliceDeposits = await this.market.depositsOf(alice);
-        const bobDeposits = await this.market.depositsOf(bob);
+        const aliceMarketBalance = await this.market.balanceOf(alice);
+        const bobMarketBalance = await this.market.balanceOf(bob);
         
-        assert.equal(aliceDeposits, 0);
-        assert.equal(bobDeposits, 0);
+        assert.equal(aliceMarketBalance, 0);
+        assert.equal(bobMarketBalance, 0);
         
         const marketBalance = await this.token.balanceOf(this.market.address);
         
         assert.equal(marketBalance, 0);
+        
+        const totalSupply = await this.market.totalSupply();
+        
+        assert.equal(totalSupply, 0);
     });
     
     it('redeem amount', async function () {
@@ -62,12 +74,12 @@ contract('Market', function (accounts) {
         await this.market.mint(1000, { from: alice });
         
         const tokenAliceBalance = await this.token.balanceOf(alice);
-        const aliceDeposits = await this.market.depositsOf(alice);
-        const bobDeposits = await this.market.depositsOf(bob);
+        const aliceMarketBalance = await this.market.balanceOf(alice);
+        const bobMarketBalance = await this.market.balanceOf(bob);
         
         assert.equal(tokenAliceBalance, 1000000 - 1000);
-        assert.equal(aliceDeposits, 1000);
-        assert.equal(bobDeposits, 0);
+        assert.equal(aliceMarketBalance, 1000);
+        assert.equal(bobMarketBalance, 0);
         
         const marketBalance = await this.token.balanceOf(this.market.address);
         
@@ -76,16 +88,20 @@ contract('Market', function (accounts) {
         await this.market.redeem(500, { from: alice });
                 
         const newTokenAliceBalance = await this.token.balanceOf(alice);
-        const newAliceDeposits = await this.market.depositsOf(alice);
-        const newBobDeposits = await this.market.depositsOf(bob);
+        const newAliceMarketBalance = await this.market.balanceOf(alice);
+        const newBobMarketBalance = await this.market.balanceOf(bob);
         
         assert.equal(newTokenAliceBalance, 1000000 - 500);
-        assert.equal(newAliceDeposits, 500);
-        assert.equal(newBobDeposits, 0);
+        assert.equal(newAliceMarketBalance, 500);
+        assert.equal(newBobMarketBalance, 0);
         
         const newMarketBalance = await this.token.balanceOf(this.market.address);
         
         assert.equal(newMarketBalance, 500);
+        
+        const newTotalSupply = await this.market.totalSupply();
+        
+        assert.equal(newTotalSupply, 500);
     });
     
     it('cannot redeem amount without enough deposits', async function () {
@@ -102,29 +118,37 @@ contract('Market', function (accounts) {
         await this.token.approve(this.market.address, 1000, { from: bob });
         await this.market.mint(1000, { from: bob });
         
-        const aliceDeposits = await this.market.depositsOf(alice);
-        const bobDeposits = await this.market.depositsOf(bob);
+        const aliceMarketBalance = await this.market.balanceOf(alice);
+        const bobMarketBalance = await this.market.balanceOf(bob);
         
-        assert.equal(aliceDeposits, 1000);
-        assert.equal(bobDeposits, 1000);
+        assert.equal(aliceMarketBalance, 1000);
+        assert.equal(bobMarketBalance, 1000);
         
         const marketBalance = await this.token.balanceOf(this.market.address);
         
         assert.equal(marketBalance, 2000);
+                
+        const totalSupply = await this.market.totalSupply();
+        
+        assert.equal(totalSupply, 2000);
         
         expectThrow(this.market.redeem(1500, { from: alice }));
                 
         const newTokenAliceBalance = await this.token.balanceOf(alice);
-        const newAliceDeposits = await this.market.depositsOf(alice);
-        const newBobDeposits = await this.market.depositsOf(bob);
+        const newAliceMarketBalance = await this.market.balanceOf(alice);
+        const newBobMarketBalance = await this.market.balanceOf(bob);
         
         assert.equal(newTokenAliceBalance, 1000000 - 2000);
-        assert.equal(newAliceDeposits, 1000);
-        assert.equal(newBobDeposits, 1000);
+        assert.equal(newAliceMarketBalance, 1000);
+        assert.equal(newBobMarketBalance, 1000);
         
         const newMarketBalance = await this.token.balanceOf(this.market.address);
         
         assert.equal(newMarketBalance, 2000);
+        
+        const newTotalSupply = await this.market.totalSupply();
+        
+        assert.equal(newTotalSupply, 2000);
     });
     
     it('no controller', async function () {
@@ -162,21 +186,25 @@ contract('Market', function (accounts) {
 
         await this.market.borrow(500, this.market2.address, { from: bob });
         
-        const aliceDeposits = await this.market.depositsOf(alice);
-        const bobDeposits = await this.market.depositsOf(bob);
+        const aliceMarketBalance = await this.market.balanceOf(alice);
+        const bobMarketBalance = await this.market.balanceOf(bob);
         
-        assert.equal(aliceDeposits, 1000);
-        assert.equal(bobDeposits, 0);
+        assert.equal(aliceMarketBalance, 1000);
+        assert.equal(bobMarketBalance, 0);
         
-        const aliceDeposits2 = await this.market2.depositsOf(alice);
-        const bobDeposits2 = await this.market2.depositsOf(bob);
+        const aliceMarketBalance2 = await this.market2.balanceOf(alice);
+        const bobMarketBalance2 = await this.market2.balanceOf(bob);
         
-        assert.equal(aliceDeposits2, 0);
-        assert.equal(bobDeposits2, 4000 - 500 * 2);
+        assert.equal(aliceMarketBalance2, 0);
+        assert.equal(bobMarketBalance2, 4000 - 500 * 2);
         
         const newBobTokenBalance = await this.token.balanceOf(bob);
         
         assert.equal(newBobTokenBalance, 500);
+        
+        const newTotalSupply = await this.market.totalSupply();
+        
+        assert.equal(newTotalSupply, 1000);
     });
 });
 
