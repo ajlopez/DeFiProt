@@ -5,30 +5,30 @@ contract('Market', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
     
+    beforeEach(async function() {
+        this.market = await Market.new();
+    });
+    
     it('initial balance zero', async function () {
-        const market = await Market.new();
-        
-        const balance = await market.balanceOf(alice);
+        const balance = await this.market.balanceOf(alice);
         
         assert.equal(balance, 0);
         
-        const totalSupply = await market.totalSupply();
+        const totalSupply = await this.market.totalSupply();
         
         assert.equal(totalSupply, 0);
     });
     
     it('mint amount', async function () {
-        const market = await Market.new();
+        await this.market.mint(1000, { from: alice });
         
-        await market.mint(1000, { from: alice });
-        
-        const aliceBalance = await market.balanceOf(alice);
-        const bobBalance = await market.balanceOf(bob);
+        const aliceBalance = await this.market.balanceOf(alice);
+        const bobBalance = await this.market.balanceOf(bob);
         
         assert.equal(aliceBalance, 1000);
         assert.equal(bobBalance, 0);
         
-        const totalSupply = await market.totalSupply();
+        const totalSupply = await this.market.totalSupply();
         
         assert.equal(totalSupply, 1000);
     });
