@@ -12,6 +12,8 @@ contract('Market', function (accounts) {
     beforeEach(async function() {
         this.token = await Token.new(1000000, "Token", 0, "TOK");
         this.market = await Market.new(this.token.address);
+        this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
+        this.market2 = await Market.new(this.token2.address);
         this.controller = await Controller.new();
     });
     
@@ -23,6 +25,12 @@ contract('Market', function (accounts) {
         const totalSupply = await this.market.totalSupply();
         
         assert.equal(totalSupply, 0);
+    });
+    
+    it('initial market balance zero', async function () {
+        const balance = await this.market.balanceOf(this.market.address);
+        
+        assert.equal(balance, 0);
     });
     
     it('mint amount', async function () {
@@ -132,11 +140,37 @@ contract('Market', function (accounts) {
     });
     
     it('only owner can set controller', async function () {
-        expectThrow(this.market.setController(this.controller));
+        expectThrow(this.market.setController(this.controller, { from: bob }));
         
         const controller = await this.market.controller();
         
         assert.equal(controller, 0);
+    });
+    
+    it('borrow from market using other market as collateral', async function () {
+        await this.market.setController(this.controller.address);
+        await this.market2.setController(this.controller.address);
+        await this.controller.addMarket(this.market.address);
+        await this.controller.addMarket(this.market2.address);
+
+        await this.token.approve(this.market.address, 1000, { from: alice });
+        await this.market.mint(1000, { from: alice });
+        await this.token2.approve(this.market2.address, 4000, { from: bob });
+        await this.market2.mint(4000, { from: bob });
+
+        await this.market.borrow(500, this.market2.address, { from: bob });
+        
+        const aliceBalance = await this.market.balanceOf(alice);
+        const bobBalance = await this.market.balanceOf(bob);
+        
+        assert.equal(aliceBalance, 1000);
+        assert.equal(bobBalance, 500);
+        
+        const aliceBalance2 = await this.market2.balanceOf(alice);
+        const bobBalance2 = await this.market2.balanceOf(bob);
+        
+        assert.equal(aliceBalance2, 0);
+        assert.equal(bobBalance2, 4000 - 500 * 2);
     });
 });
 

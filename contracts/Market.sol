@@ -9,7 +9,6 @@ contract Market is MarketInterface {
     ERC20 public token;
     Controller public controller;
     uint public totalSupply;
-    uint public lockedSupply;
     mapping (address => uint) balances;
     
     constructor(ERC20 _token) public {
@@ -22,6 +21,11 @@ contract Market is MarketInterface {
         _;
     }
     
+    modifier onlyController() {
+        require(msg.sender == address(controller));
+        _;
+    }
+    
     function balanceOf(address user) public view returns (uint) {
         return balances[user];
     }
@@ -31,6 +35,7 @@ contract Market is MarketInterface {
     }
     
     function mint(uint amount) public {
+        // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
         balances[msg.sender] += amount;
         totalSupply += amount;
@@ -40,6 +45,18 @@ contract Market is MarketInterface {
         require(token.transfer(msg.sender, amount), "No enough tokens");
         balances[msg.sender] -= amount;
         totalSupply -= amount;
+    }
+    
+    function borrow(uint amount, address collateral) public {
+        controller.lock(collateral, msg.sender, amount * 2);
+        // TODO review source of value
+        balances[msg.sender] += amount;
+        totalSupply += amount;
+    }
+    
+    function lock(address user, uint amount) public onlyController {
+        balances[user] -= amount;
+        balances[address(this)] += amount;
     }
 }
 

@@ -15,8 +15,19 @@ contract Controller {
         _;
     }
     
+    modifier onlyMarket() {
+        require(markets[msg.sender]);
+        _;
+    }
+    
     function addMarket(address market) public onlyOwner {
         markets[market] = true;
+    }
+    
+    function lock(address market, address user, uint amount) external onlyMarket {
+        require(markets[market]);
+        
+        MarketInterface(market).lock(user, amount);
     }
 }
 
