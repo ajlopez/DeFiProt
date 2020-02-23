@@ -1,12 +1,14 @@
 
 const Market = artifacts.require('./Market.sol');
+const Token = artifacts.require('./test/FaucetToken.sol');
 
 contract('Market', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
     
     beforeEach(async function() {
-        this.market = await Market.new();
+        this.token = await Token.new(1000000, "Token", 0, "TOK");
+        this.market = await Market.new(this.token.address);
     });
     
     it('initial balance zero', async function () {
@@ -20,6 +22,7 @@ contract('Market', function (accounts) {
     });
     
     it('mint amount', async function () {
+        await this.token.approve(this.market.address, 1000, { from: alice });
         await this.market.mint(1000, { from: alice });
         
         const aliceBalance = await this.market.balanceOf(alice);
