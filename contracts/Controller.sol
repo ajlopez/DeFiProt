@@ -27,7 +27,7 @@ contract Controller {
     function lock(address market, address user, uint amount) external onlyMarket {
         require(markets[market]);
         
-        MarketInterface(market).lock(user, amount);
+        MarketInterface(market).transferToMarket(user, market, amount);
     }
 }
 
