@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Simple Dapp</title>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="#" onclick="pages.goTo('home')">DeFi Dapp</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active" id="item_home">
+            <a class="nav-link" href="#" onclick="pages.goTo('home')">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item" id="item_assets">
+            <a class="nav-link" href="#" onclick="pages.goTo('assets')">Assets</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    
+    <div id="page_home" style="display:none">
+      <div class="jumbotron">
+        <h1>DeFi Demo DApp</h1>
+        <p class="lead">This example is a quick exercise to illustrate how DeFi works</p>
+        <a class="btn btn-lg btn-primary" href="/docs/4.4/components/navbar/" role="button">View docs &raquo;</a>
+      </div>
+    </div>
+
+    <div id="page_assets" style="display:none">
+      <div class="jumbotron container-fluid">
+        <h1>Assets</h1>
+        <div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">User</th>
+              <th scope="col">Asset</th>
+              <th scope="col">Balance</th>
+              <th scope="col" style="width: 60%">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>root</td>
+              <td>RBTC</td>
+              <td align="right">0</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>alice</td>
+              <td>RBTC</td>
+              <td align="right">0</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>bob</td>
+              <td>RBTC</td>
+              <td align="right">0</td>
+              <td>&nbsp;</td>
+            </tr>
+            <tr>
+              <td>charlie</td>
+              <td>RBTC</td>
+              <td align="right">0</td>
+              <td>&nbsp;</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>  </body>
+    <script src="js/ethereumjs-tx-1.3.3.min.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+    pages.goTo('home');
+    </script>
+</html>
