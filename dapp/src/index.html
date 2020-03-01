@@ -93,12 +93,12 @@
               <td rowspan="4">alice</td>
               <td>RBTC</td>
               <td align="right" id="balance_alice_rbtc">0</td>
-              <td><button type="button" class="btn btn-primary btn-sm">Fund</button></td>
+              <td><button type="button" class="btn btn-primary btn-sm" onclick="fund('alice')">Fund</button></td>
             </tr>
             <tr>
               <td>TOK1</td>
               <td align="right" id="balance_alice_token1">0</td>
-              <td><button type="button" class="btn btn-primary btn-sm">Allocate</button></td>
+              <td><button type="button" class="btn btn-primary btn-sm" onclick="allocate('alice', 'token1')">Allocate</button></td>
             </tr>
             <tr>
               <td>TOK2</td>
@@ -158,6 +158,42 @@
       </div>
     </div>
     
+    <div class="modal fade" id="fundModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="fundModalLabel">Funding</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal fade" id="allocateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="allocateModalLabel">Allocating</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha384-vk5WoKIaW/vJyUAd9n/wmopsmNhiy+L2Z+SBxGYnUkunIxVxAv/UtMOhba/xskxh" crossorigin="anonymous"></script>    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>  </body>
     <script src="js/ethereumjs-tx-1.3.3.min.js"></script>
@@ -165,8 +201,13 @@
 
     <script>
     pages.goTo('home');
+    refreshLoop();
     
+function refreshLoop() {    
     fetchBalances();
+    
+    setTimeout(refreshLoop, 20000);
+}
     
 function fetchBalances() {
     app.fetchBalances(processBalance);
@@ -174,6 +215,16 @@ function fetchBalances() {
     function processBalance(accountname, assetname, balance) {
         $('#balance_' + accountname + '_' + assetname).text(balance);
     }
+}
+
+function fund(accountname) {
+    $("#fundModal").find('.modal-title').text('Funding ' + accountname);
+    $("#fundModal").modal('show');
+}
+
+function allocate(accountname, tokenname) {
+    $("#allocateModal").find('.modal-title').text('Allocating ' + tokenname + ' to ' + accountname);
+    $("#allocateModal").modal('show');
 }
     
     </script>
