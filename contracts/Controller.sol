@@ -22,6 +22,12 @@ contract Controller {
         _;
     }
     
+    function setPrice(address market, uint price) public onlyOwner {
+        require(markets[market]);
+        
+        prices[market] = price;
+    }
+    
     function addMarket(address market) public onlyOwner {
         markets[market] = true;
     }

@@ -42,5 +42,31 @@ contract('Controller', function (accounts) {
         
         assert.ok(!result);
     });
+    
+    it('set asset price', async function () {
+        await this.controller.addMarket(this.market.address);
+        await this.controller.setPrice(this.market.address, 100);
+        
+        const result = await this.controller.prices(this.market.address);
+        
+        assert.equal(result, 100);
+    });
+    
+    it('only owner can set asset price', async function () {
+        await this.controller.addMarket(this.market.address);
+        expectThrow(this.controller.setPrice(this.market.address, 100, { from: bob }));
+        
+        const result = await this.controller.prices(this.market.address);
+        
+        assert.equal(result, 0);
+    });
+    
+    it('only a market can have asset price', async function () {
+        expectThrow(this.controller.setPrice(this.token.address, 100));
+        
+        const result = await this.controller.prices(this.token.address);
+        
+        assert.equal(result, 0);
+    });
 });
 
