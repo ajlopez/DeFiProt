@@ -4,6 +4,8 @@ import "./MarketInterface.sol";
 
 contract Controller {
     mapping (address => bool) public markets;
+    mapping (address => uint) public prices;
+    
     address public owner;
     
     constructor() public {

@@ -21,6 +21,12 @@ contract('Controller', function (accounts) {
         assert.ok(!result);
     });
     
+    it('no price', async function () {
+        const result = await this.controller.prices(this.token.address);
+        
+        assert.equal(result, 0);
+    });
+    
     it('add market', async function () {
         await this.controller.addMarket(this.market.address);
         
