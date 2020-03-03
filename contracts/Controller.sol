@@ -34,6 +34,19 @@ contract Controller {
         marketList.push(market);
     }
     
+    function getAccountLiquidity(address account) public view returns (uint) {
+        uint liquidity = 0;
+        
+        for (uint k = 0; k < marketList.length; k++) {
+            MarketInterface market = MarketInterface(marketList[k]);
+            uint price = prices[marketList[k]];
+            liquidity += market.balanceOf(account) * price;
+            liquidity -= market.borrowedBy(account) * 2 * price;
+        }
+        
+        return liquidity;
+    }
+    
     function lock(address market, address user, uint amount) external onlyMarket {
         require(markets[market]);
         
