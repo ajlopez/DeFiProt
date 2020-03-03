@@ -190,7 +190,7 @@ contract('Market', function (accounts) {
         await this.token2.approve(this.market2.address, 4000, { from: bob });
         await this.market2.mint(4000, { from: bob });
 
-        await this.market.borrow(500, this.market2.address, { from: bob });
+        await this.market.borrow(500);
         
         const borrowed = await this.market.borrowedBy(bob);
         

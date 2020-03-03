@@ -54,10 +54,12 @@ contract Market is MarketInterface {
         totalSupply -= amount;
     }
     
-    function borrow(uint amount, address collateral) public {
+    function borrow(uint amount) public {
         require(token.balanceOf(address(this)) >= amount);
-        controller.lock(collateral, msg.sender, amount * 2);
+        require(controller.getAccountLiquidity(msg.sender) >= controller.prices(address(this)) * amount * 2, "Not enough account liquidity");
+        
         require(token.transfer(msg.sender, amount), "No enough tokens to borrow");
+        
         borrowed[msg.sender] += amount;
     }
     

@@ -76,7 +76,7 @@ contract('Controller', function (accounts) {
         });
     });
     
-    describe('one token and one market', function () {
+    describe('two tokens and two markets', function () {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
             this.token2 = await Token.new(1000000, "Token 2", 0, "TOK2");
@@ -92,7 +92,9 @@ contract('Controller', function (accounts) {
           
             this.controller = await Controller.new();
             await this.controller.addMarket(this.market.address);
+            await this.market.setController(this.controller.address);
             await this.controller.addMarket(this.market2.address);
+            await this.market2.setController(this.controller.address);
             
             await this.controller.setPrice(this.market.address, 10);
             await this.controller.setPrice(this.market2.address, 20);
@@ -117,6 +119,29 @@ contract('Controller', function (accounts) {
             
             assert.equal(result3, 100 * 10 + 100 * 20);
         });
+        
+        it('account liquidity using deposits and borrows', async function () {
+            const result = await this.controller.getAccountLiquidity(alice);
+            
+            assert.equal(result, 0);
+            
+            await this.token.approve(this.market.address, 100, { from: alice });
+            await this.market.mint(100, { from: alice });
+            
+            await this.token2.approve(this.market2.address, 1000, { from: bob });
+            await this.market2.mint(1000, { from: bob });
+            
+            const result2 = await this.controller.getAccountLiquidity(alice);
+            
+            assert.equal(result2, 100 * 10);
+            
+            await this.market2.borrow(10, { from: alice });
+            
+            const result3 = await this.controller.getAccountLiquidity(alice);
+            
+            assert.equal(result3, 100 * 10 - 10 * 20 * 2);
+        });
+
     });
 });
 
