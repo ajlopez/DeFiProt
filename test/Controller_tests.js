@@ -34,6 +34,10 @@ contract('Controller', function (accounts) {
             const result = await this.controller.markets(this.market.address);
             
             assert.ok(result);
+            
+            const result2 = await this.controller.marketList(0);
+            
+            assert.equal(result2, this.market.address);
         });
         
         it('only owner could add market', async function () {

@@ -5,6 +5,7 @@ import "./MarketInterface.sol";
 contract Controller {
     mapping (address => bool) public markets;
     mapping (address => uint) public prices;
+    address[] public marketList;
     
     address public owner;
     
@@ -30,6 +31,7 @@ contract Controller {
     
     function addMarket(address market) public onlyOwner {
         markets[market] = true;
+        marketList.push(market);
     }
     
     function lock(address market, address user, uint amount) external onlyMarket {
