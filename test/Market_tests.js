@@ -31,6 +31,12 @@ contract('Market', function (accounts) {
         assert.equal(totalSupply, 0);
     });
     
+    it('initial borrows are zero', async function () {
+        const borrowed = await this.market.borrowedBy(alice);
+        
+        assert.equal(borrowed, 0);
+    });
+    
     it('mint amount', async function () {
         await this.token.approve(this.market.address, 1000, { from: alice });
         await this.market.mint(1000, { from: alice });
@@ -185,6 +191,10 @@ contract('Market', function (accounts) {
         await this.market2.mint(4000, { from: bob });
 
         await this.market.borrow(500, this.market2.address, { from: bob });
+        
+        const borrowed = await this.market.borrowedBy(bob);
+        
+        assert.equal(borrowed, 500);
         
         const aliceMarketBalance = await this.market.balanceOf(alice);
         const bobMarketBalance = await this.market.balanceOf(bob);
