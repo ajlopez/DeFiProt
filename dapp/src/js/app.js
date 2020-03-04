@@ -151,7 +151,7 @@ var app = (function () {
         function fetchAccountAssetBalance(accountname, account, assetname) {
             const address = account.address;
             
-            var request = {
+            const request = {
                 id: ++id,
                 jsonrpc: "2.0",
                 method: "eth_call",
@@ -215,6 +215,90 @@ var app = (function () {
             const address = account.address;
             
             var request = {
+                id: ++id,
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [ {
+                    from: config.accounts.root.address,
+                    to: config.instances[assetname].address,
+                    gas: '0x010000',
+                    gasPrice: '0x0',
+                    value: '0x0',
+                    data: '0x70a08231' + toHex(account.address)
+                }, 'latest' ]
+            };
+            
+            post(config.host, request, function (data) {
+                if (typeof data === 'string')
+                    data = JSON.parse(data);
+                
+                const balance = parseInt(data.result);
+                
+                bfn(accountname, assetname, balance);
+            });
+        }
+    }
+
+    function fetchMarkets(bfn) {
+        for (let n in config.instances) {
+            if (!n.startsWith('market'))
+                continue;
+            
+            fetchMarket(n);
+        }
+        
+        function fetchMarket(marketname) {
+            const request = {
+                id: ++id,
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [ {
+                    from: config.accounts.root.address,
+                    to: config.instances[marketname].address,
+                    gas: '0x010000',
+                    gasPrice: '0x0',
+                    value: '0x0',
+                    data: '0x7d882097'
+                }, 'latest' ]
+            };
+                        
+            post(config.host, request, function (data) {
+                if (typeof data === 'string')
+                    data = JSON.parse(data);
+                
+                const value = parseInt(data.result);
+                
+                bfn(marketname, 'deposits', value);
+            });
+            
+            const request2 = {
+                id: ++id,
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [ {
+                    from: config.accounts.root.address,
+                    to: config.instances[marketname].address,
+                    gas: '0x010000',
+                    gasPrice: '0x0',
+                    value: '0x0',
+                    data: '0x47bd3718'
+                }, 'latest' ]
+            };
+                        
+            post(config.host, request2, function (data) {
+                if (typeof data === 'string')
+                    data = JSON.parse(data);
+                
+                const value = parseInt(data.result);
+                
+                bfn(marketname, 'borrows', value);
+            });
+        }
+        
+        function fetchAccountAssetBalance(accountname, account, assetname) {
+            const address = account.address;
+           
+            const request = {
                 id: ++id,
                 jsonrpc: "2.0",
                 method: "eth_call",
@@ -427,7 +511,8 @@ var app = (function () {
     
     return {
         fetchBalances: fetchBalances,
-        fetchLiquidities: fetchLiquidities
+        fetchLiquidities: fetchLiquidities,
+        fetchMarkets: fetchMarkets
     }
 })();
 

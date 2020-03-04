@@ -413,6 +413,7 @@ function refreshLoop() {
 function fetchValues() {
     app.fetchBalances(processBalance);
     app.fetchLiquidities(processLiquidity);
+    app.fetchMarkets(processMarket);
     
     function processBalance(accountname, assetname, balance) {
         $('#balance_' + accountname + '_' + assetname).text(balance);
@@ -420,6 +421,10 @@ function fetchValues() {
     
     function processLiquidity(accountname, liquidity) {
         $('#' + accountname + '_liquidity').text(liquidity);
+    }
+    
+    function processMarket(marketname, concept, value) {
+        $('#' + marketname + '_' + concept).text(value);
     }
 }
 
