@@ -405,16 +405,21 @@
     refreshLoop();
     
 function refreshLoop() {    
-    fetchBalances();
+    fetchValues();
     
     setTimeout(refreshLoop, 20000);
 }
     
-function fetchBalances() {
+function fetchValues() {
     app.fetchBalances(processBalance);
+    app.fetchLiquidities(processLiquidity);
     
     function processBalance(accountname, assetname, balance) {
         $('#balance_' + accountname + '_' + assetname).text(balance);
+    }
+    
+    function processLiquidity(accountname, liquidity) {
+        $('#' + accountname + '_liquidity').text(liquidity);
     }
 }
 

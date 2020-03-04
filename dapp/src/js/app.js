@@ -176,6 +176,69 @@ var app = (function () {
         }
     }
     
+    function fetchLiquidities(bfn) {
+        for (let n in config.accounts) {
+            if (n === 'root')
+                continue;
+            
+            fetchAccountLiquidity(n, config.accounts[n]);
+        }
+        
+        function fetchAccountLiquidity(accountname, account) {
+            const address = account.address;
+            
+            var request = {
+                id: ++id,
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [ {
+                    from: config.accounts.root.address,
+                    to: config.instances.controller.address,
+                    gas: '0x010000',
+                    gasPrice: '0x0',
+                    value: '0x0',
+                    data: '0x5ec88c79' + toHex(account.address)
+                }, 'latest' ]
+            };
+                        
+            post(config.host, request, function (data) {
+                if (typeof data === 'string')
+                    data = JSON.parse(data);
+                
+                const liquidity = parseInt(data.result);
+                
+                bfn(accountname, liquidity);
+            });
+        }
+        
+        function fetchAccountAssetBalance(accountname, account, assetname) {
+            const address = account.address;
+            
+            var request = {
+                id: ++id,
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [ {
+                    from: config.accounts.root.address,
+                    to: config.instances[assetname].address,
+                    gas: '0x010000',
+                    gasPrice: '0x0',
+                    value: '0x0',
+                    data: '0x70a08231' + toHex(account.address)
+                }, 'latest' ]
+            };
+            
+            post(config.host, request, function (data) {
+                if (typeof data === 'string')
+                    data = JSON.parse(data);
+                
+                const balance = parseInt(data.result);
+                
+                bfn(accountname, assetname, balance);
+            });
+        }
+    }
+    
     function randomAccount(accounts) {
         while (true) {            
             var n = Math.floor(Math.random() * accounts.length);
@@ -363,7 +426,8 @@ var app = (function () {
     }
     
     return {
-        fetchBalances: fetchBalances
+        fetchBalances: fetchBalances,
+        fetchLiquidities: fetchLiquidities
     }
 })();
 
