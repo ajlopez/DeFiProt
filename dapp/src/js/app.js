@@ -63,6 +63,26 @@ const config = {
         "token3": {
             "address": "0xb21728616bba4e2febc9e79804da000ad637404b",
             "contract": "FaucetToken"
+        },
+        "market1": {
+            "address": "0x540b1b7ffb4cd82bb35982e0ba24906ed53785d3",
+            "contract": "Market"
+        },
+        "market2": {
+            "address": "0xf66f2b12878725bacb9c83dfc210343c8b7344f5",
+            "contract": "Market"
+        },
+        "market3": {
+            "address": "0x0adda8eb798e916c4192d563a7eb101aa4b16bd6",
+            "contract": "Market"
+        },
+        "controller": {
+            "address": "0x004483cc6e7d97dd4cca3d21a3b1ec262751f9ff",
+            "contract": "Controller"
+        },
+        "market4": {
+            "address": "0xa3ac2760c815f3579097b3c3e267a6bcacf6ba82",
+            "contract": "Market"
         }
     },
     "options": {}
