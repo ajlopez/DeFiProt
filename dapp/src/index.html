@@ -414,6 +414,7 @@ function fetchValues() {
     app.fetchBalances(processBalance);
     app.fetchLiquidities(processLiquidity);
     app.fetchMarkets(processMarket);
+    app.fetchPositions(processPosition);
     
     function processBalance(accountname, assetname, balance) {
         $('#balance_' + accountname + '_' + assetname).text(balance);
@@ -425,6 +426,10 @@ function fetchValues() {
     
     function processMarket(marketname, concept, value) {
         $('#' + marketname + '_' + concept).text(value);
+    }
+    
+    function processPosition(accountname, marketname, concept, value) {
+        $('#' + accountname + '_' + marketname + '_' + concept).text(value);
     }
 }
 

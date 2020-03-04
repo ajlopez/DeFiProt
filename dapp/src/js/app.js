@@ -172,6 +172,74 @@ var app = (function () {
         }
     }
     
+    function fetchPositions(bfn) {
+        for (let n in config.accounts) {
+            if (n === 'root')
+                continue;
+            
+            fetchAccountPositions(n, config.accounts[n]);
+        }
+        
+        function fetchAccountPositions(accountname, account) {
+            for (let n in config.instances) {
+                if (!n.startsWith('market'))
+                    continue;
+                
+                fetchAccountMarketPositions(accountname, account, n, config.instances[n]);
+            }
+        }
+         
+        function fetchAccountMarketPositions(accountname, account, marketname, market) {
+            const address = account.address;
+            
+            const request = {
+                id: ++id,
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [ {
+                    from: config.accounts.root.address,
+                    to: config.instances[marketname].address,
+                    gas: '0x010000',
+                    gasPrice: '0x0',
+                    value: '0x0',
+                    data: '0x5edf83c5' + toHex(address)
+                }, 'latest' ]
+            };
+                        
+            post(config.host, request, function (data) {
+                if (typeof data === 'string')
+                    data = JSON.parse(data);
+                
+                const value = parseInt(data.result);
+                
+                bfn(accountname, marketname, 'deposits', value);
+            });
+            
+            const request2 = {
+                id: ++id,
+                jsonrpc: "2.0",
+                method: "eth_call",
+                params: [ {
+                    from: config.accounts.root.address,
+                    to: config.instances[marketname].address,
+                    gas: '0x010000',
+                    gasPrice: '0x0',
+                    value: '0x0',
+                    data: '0xb825ffd6' + toHex(address)
+                }, 'latest' ]
+            };
+                        
+            post(config.host, request2, function (data) {
+                if (typeof data === 'string')
+                    data = JSON.parse(data);
+                
+                const value = parseInt(data.result);
+                
+                bfn(accountname, marketname, 'borrows', value);
+            });
+        }
+    }
+    
     function fetchLiquidities(bfn) {
         for (let n in config.accounts) {
             if (n === 'root')
@@ -204,33 +272,6 @@ var app = (function () {
                 const liquidity = parseInt(data.result);
                 
                 bfn(accountname, liquidity);
-            });
-        }
-        
-        function fetchAccountAssetBalance(accountname, account, assetname) {
-            const address = account.address;
-            
-            var request = {
-                id: ++id,
-                jsonrpc: "2.0",
-                method: "eth_call",
-                params: [ {
-                    from: config.accounts.root.address,
-                    to: config.instances[assetname].address,
-                    gas: '0x010000',
-                    gasPrice: '0x0',
-                    value: '0x0',
-                    data: '0x70a08231' + toHex(account.address)
-                }, 'latest' ]
-            };
-            
-            post(config.host, request, function (data) {
-                if (typeof data === 'string')
-                    data = JSON.parse(data);
-                
-                const balance = parseInt(data.result);
-                
-                bfn(accountname, assetname, balance);
             });
         }
     }
@@ -508,7 +549,8 @@ var app = (function () {
     return {
         fetchBalances: fetchBalances,
         fetchLiquidities: fetchLiquidities,
-        fetchMarkets: fetchMarkets
+        fetchMarkets: fetchMarkets,
+        fetchPositions: fetchPositions
     }
 })();
 
