@@ -3,14 +3,17 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./test/ERC20.sol";
 import "./Controller.sol";
 
-
 contract Market is MarketInterface {
     address public owner;
+
     ERC20 public token;
     Controller public controller;
-    mapping (address => uint) balances;
-    mapping (address => uint) borrowed;
-    uint public totalSupply;
+
+    uint public totalDeposits;
+    uint public totalBorrows;
+
+    mapping (address => uint) deposits;
+    mapping (address => uint) borrows;
     
     constructor(ERC20 _token) public {
         owner = msg.sender;
@@ -27,12 +30,12 @@ contract Market is MarketInterface {
         _;
     }
     
-    function balanceOf(address user) public view returns (uint) {
-        return balances[user];
+    function depositsBy(address user) public view returns (uint) {
+        return deposits[user];
     }
     
-    function borrowedBy(address user) public view returns (uint) {
-        return borrowed[user];
+    function borrowsBy(address user) public view returns (uint) {
+        return borrows[user];
     }
     
     function setController(Controller _controller) public onlyOwner {
@@ -42,16 +45,16 @@ contract Market is MarketInterface {
     function mint(uint amount) public {
         // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
-        balances[msg.sender] += amount;
-        totalSupply += amount;
+        deposits[msg.sender] += amount;
+        totalDeposits += amount;
     }
     
     function redeem(uint amount) public {
-        require(balances[msg.sender] >= amount);
+        require(deposits[msg.sender] >= amount);
         require(token.balanceOf(address(this)) >= amount);
         require(token.transfer(msg.sender, amount), "No enough tokens");
-        balances[msg.sender] -= amount;
-        totalSupply -= amount;
+        deposits[msg.sender] -= amount;
+        totalDeposits -= amount;
     }
     
     function borrow(uint amount) public {
@@ -60,14 +63,8 @@ contract Market is MarketInterface {
         
         require(token.transfer(msg.sender, amount), "No enough tokens to borrow");
         
-        borrowed[msg.sender] += amount;
-    }
-    
-    function transferToMarket(address user, address market, uint amount) public onlyController {
-        require(balances[user] >= amount);
-        require(token.balanceOf(address(this)) >= amount);
-        require(token.transfer(market, amount), "No enough tokens to transfer to market");
-        balances[user] -= amount;
+        borrows[msg.sender] += amount;
+        totalBorrows += amount;
     }
 }
 
