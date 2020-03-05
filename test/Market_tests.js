@@ -186,6 +186,7 @@ contract('Market', function (accounts) {
         await this.controller.addMarket(this.market2.address);
         await this.controller.setPrice(this.market.address, 1);
         await this.controller.setPrice(this.market2.address, 1);
+        await this.controller.setCollateralFactor(2000000);
 
         await this.token.approve(this.market.address, 1000, { from: alice });
         await this.market.mint(1000, { from: alice });

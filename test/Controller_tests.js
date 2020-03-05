@@ -98,6 +98,8 @@ contract('Controller', function (accounts) {
             
             await this.controller.setPrice(this.market.address, 10);
             await this.controller.setPrice(this.market2.address, 20);
+            
+            await this.controller.setCollateralFactor(2000000);
         });
         
         it('account liquidity using deposits', async function () {

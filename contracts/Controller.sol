@@ -3,11 +3,15 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./MarketInterface.sol";
 
 contract Controller {
+    address public owner;
+    
     mapping (address => bool) public markets;
     mapping (address => uint) public prices;
     address[] public marketList;
     
-    address public owner;
+    uint public collateralFactor;
+    
+    uint constant MANTISSA = 1e6;
     
     constructor() public {
         owner = msg.sender;
@@ -21,6 +25,10 @@ contract Controller {
     modifier onlyMarket() {
         require(markets[msg.sender]);
         _;
+    }
+    
+    function setCollateralFactor(uint factor) public onlyOwner {
+        collateralFactor = factor;
     }
     
     function setPrice(address market, uint price) public onlyOwner {
@@ -41,7 +49,7 @@ contract Controller {
             MarketInterface market = MarketInterface(marketList[k]);
             uint price = prices[marketList[k]];
             liquidity += market.depositsBy(account) * price;
-            liquidity -= market.borrowsBy(account) * 2 * price;
+            liquidity -= market.borrowsBy(account) * collateralFactor / MANTISSA * price;
         }
         
         return liquidity;
