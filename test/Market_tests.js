@@ -9,6 +9,8 @@ contract('Market', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
     
+    const FACTOR = 1000000;
+    
     beforeEach(async function() {
         this.token = await Token.new(1000000, "Token", 0, "TOK");
         this.market = await Market.new(this.token.address);
@@ -29,6 +31,12 @@ contract('Market', function (accounts) {
         const totalDeposits = await this.market.totalDeposits();
         
         assert.equal(totalDeposits, 0);
+    });
+    
+    it('initial borrow index', async function () {
+        const borrowIndex = await this.market.borrowIndex();
+        
+        assert.equal(borrowIndex, FACTOR);
     });
     
     it('initial borrows are zero', async function () {

@@ -12,12 +12,22 @@ contract Market is MarketInterface {
     uint public totalDeposits;
     uint public totalBorrows;
 
+    struct BorrowSnapshot {
+        uint principal;
+        uint interestIndex;
+    }
+    
+    uint public borrowIndex;
+    
     mapping (address => uint) deposits;
-    mapping (address => uint) borrows;
+    mapping (address => BorrowSnapshot) borrows;
+    
+    uint constant FACTOR = 1e6;
     
     constructor(ERC20 _token) public {
         owner = msg.sender;
         token = _token;
+        borrowIndex = FACTOR;
     }
     
     modifier onlyOwner() {
@@ -35,7 +45,7 @@ contract Market is MarketInterface {
     }
     
     function borrowsBy(address user) public view returns (uint) {
-        return borrows[user];
+        return borrows[user].principal;
     }
     
     function setController(Controller _controller) public onlyOwner {
@@ -63,7 +73,11 @@ contract Market is MarketInterface {
         
         require(token.transfer(msg.sender, amount), "No enough tokens to borrow");
         
-        borrows[msg.sender] += amount;
+        BorrowSnapshot storage borrowSnapshot = borrows[msg.sender];
+        
+        borrowSnapshot.principal = 
+        
+        borrows[msg.sender].principal += amount;
         totalBorrows += amount;
     }
 }
