@@ -176,7 +176,7 @@
             <tr>
               <th scope="col">Market</th>
               <th scope="col">Asset</th>
-              <th scope="col">Deposits</th>
+              <th scope="col">Lendings</th>
               <th scope="col">Borrows</th>
             </tr>
           </thead>
@@ -184,19 +184,19 @@
             <tr>
               <td>Market 1</td>
               <td>TOK1</td>
-              <td align="right" id="market1_deposits">0</td>
+              <td align="right" id="market1_lendings">0</td>
               <td align="right" id="market1_borrows">0</td>
             </tr>
             <tr>
               <td>Market 2</td>
               <td>TOK2</td>
-              <td align="right" id="market2_deposits">0</td>
+              <td align="right" id="market2_lendings">0</td>
               <td align="right" id="market2_borrows">0</td>
             </tr>
             <tr>
               <td>Market 3</td>
               <td>TOK3</td>
-              <td align="right" id="market3_deposits">0</td>
+              <td align="right" id="market3_lendings">0</td>
               <td align="right" id="market3_borrows">0</td>
             </tr>
           </tbody>
@@ -215,7 +215,7 @@
               <th scope="col">User</th>
               <th scope="col">Market</th>
               <th scope="col">Asset</th>
-              <th scope="col">Deposits</th>
+              <th scope="col">Lendings</th>
               <th scope="col">Borrows</th>
               <th scope="col">Actions</th>
             </tr>
@@ -225,10 +225,11 @@
               <td rowspan="3">alice</td>
               <td>Market 1</td>
               <td>TOK1</td>
-              <td align="right" id="alice_market1_deposits">0</td>
+              <td align="right" id="alice_market1_lendings">0</td>
               <td align="right" id="alice_market1_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -236,10 +237,11 @@
             <tr>
               <td>Market 2</td>
               <td>TOK2</td>
-              <td align="right" id="alice_market2_deposits">0</td>
+              <td align="right" id="alice_market2_lendings">0</td>
               <td align="right" id="alice_market2_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -247,10 +249,11 @@
             <tr>
               <td>Market 3</td>
               <td>TOK3</td>
-              <td align="right" id="alice_market3_deposits">0</td>
+              <td align="right" id="alice_market3_lendings">0</td>
               <td align="right" id="alice_market3_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -259,10 +262,11 @@
               <td rowspan="3">bob</td>
               <td>Market 1</td>
               <td>TOK1</td>
-              <td align="right" id="bob_market1_deposits">0</td>
+              <td align="right" id="bob_market1_lendings">0</td>
               <td align="right" id="bob_market1_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -270,10 +274,11 @@
             <tr>
               <td>Market 2</td>
               <td>TOK2</td>
-              <td align="right" id="bob_market2_deposits">0</td>
+              <td align="right" id="bob_market2_lendings">0</td>
               <td align="right" id="bob_market2_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -281,10 +286,11 @@
             <tr>
               <td>Market 3</td>
               <td>TOK3</td>
-              <td align="right" id="bob_market3_deposits">0</td>
+              <td align="right" id="bob_market3_lendings">0</td>
               <td align="right" id="bob_market3_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -293,10 +299,11 @@
               <td rowspan="3">charlie</td>
               <td>Market 1</td>
               <td>TOK1</td>
-              <td align="right" id="charlie_market1_deposits">0</td>
+              <td align="right" id="charlie_market1_lendings">0</td>
               <td align="right" id="charlie_market1_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -304,10 +311,11 @@
             <tr>
               <td>Market 2</td>
               <td>TOK2</td>
-              <td align="right" id="charlie_market2_deposits">0</td>
+              <td align="right" id="charlie_market2_lendings">0</td>
               <td align="right" id="charlie_market2_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>
@@ -315,10 +323,11 @@
             <tr>
               <td>Market 3</td>
               <td>TOK3</td>
-              <td align="right" id="charlie_market3_deposits">0</td>
+              <td align="right" id="charlie_market3_lendings">0</td>
               <td align="right" id="charlie_market3_borrows">0</td>
               <td>
-                <button type="button" class="btn btn-primary btn-sm">Deposit</button>
+                <button type="button" class="btn btn-primary btn-sm">Lending</button>
+                <button type="button" class="btn btn-primary btn-sm">Redeem</button>
                 <button type="button" class="btn btn-primary btn-sm">Borrow</button>
                 <button type="button" class="btn btn-primary btn-sm">Pay</button>
               </td>

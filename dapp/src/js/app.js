@@ -65,19 +65,19 @@ const config = {
             "contract": "FaucetToken"
         },
         "market1": {
-            "address": "0x7ac632c5ceabc3d893b0ca502ed589941a29992d",
+            "address": "0x95e16a96fba50fb088f4e536615892961674ad74",
             "contract": "Market"
         },
         "market2": {
-            "address": "0x4e0746b8e7ba67c8fe16922ff5a67e9f75168fdd",
+            "address": "0xa234317530af245dac512a000a2125d3027b812b",
             "contract": "Market"
         },
         "market3": {
-            "address": "0x113795815fb7d17be60631aaac20de1738a9d07e",
+            "address": "0x0ace491c8046c39809132d9f8fdd601ba485bc1a",
             "contract": "Market"
         },
         "controller": {
-            "address": "0xf3bb60dfc3427f51b82adb45d83321b1abf49a62",
+            "address": "0x6c300f0be76f061770586efcb1c3b26fdc6e46c5",
             "contract": "Controller"
         }
     },
@@ -202,7 +202,7 @@ var app = (function () {
                     gas: '0x010000',
                     gasPrice: '0x0',
                     value: '0x0',
-                    data: '0x5edf83c5' + toHex(address)
+                    data: '0x599995d3' + toHex(address)
                 }, 'latest' ]
             };
                         
@@ -212,7 +212,7 @@ var app = (function () {
                 
                 const value = parseInt(data.result);
                 
-                bfn(accountname, marketname, 'deposits', value);
+                bfn(accountname, marketname, 'lendings', value);
             });
             
             const request2 = {
@@ -295,7 +295,7 @@ var app = (function () {
                     gas: '0x010000',
                     gasPrice: '0x0',
                     value: '0x0',
-                    data: '0x7d882097'
+                    data: '0x4ce7610b'
                 }, 'latest' ]
             };
                         
@@ -305,7 +305,7 @@ var app = (function () {
                 
                 const value = parseInt(data.result);
                 
-                bfn(marketname, 'deposits', value);
+                bfn(marketname, 'lendings', value);
             });
             
             const request2 = {
