@@ -9,7 +9,7 @@ contract Market is MarketInterface {
     ERC20 public token;
     Controller public controller;
     
-    uint public totalDeposits;
+    uint public totalLendings;
 
     uint public accrualBlockNumber;
     uint public borrowIndex;
@@ -21,7 +21,7 @@ contract Market is MarketInterface {
         uint interestIndex;
     }
         
-    mapping (address => uint) deposits;
+    mapping (address => uint) lendings;
     mapping (address => BorrowSnapshot) borrows;
     
     uint constant FACTOR = 1e6;
@@ -44,8 +44,8 @@ contract Market is MarketInterface {
         _;
     }
     
-    function depositsBy(address user) public view returns (uint) {
-        return deposits[user];
+    function lendingsBy(address user) public view returns (uint) {
+        return lendings[user];
     }
     
     function borrowsBy(address user) public view returns (uint) {
@@ -59,16 +59,16 @@ contract Market is MarketInterface {
     function mint(uint amount) public {
         // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
-        deposits[msg.sender] += amount;
-        totalDeposits += amount;
+        lendings[msg.sender] += amount;
+        totalLendings += amount;
     }
     
     function redeem(uint amount) public {
-        require(deposits[msg.sender] >= amount);
+        require(lendings[msg.sender] >= amount);
         require(token.balanceOf(address(this)) >= amount);
         require(token.transfer(msg.sender, amount), "No enough tokens");
-        deposits[msg.sender] -= amount;
-        totalDeposits -= amount;
+        lendings[msg.sender] -= amount;
+        totalLendings -= amount;
     }
     
     function borrow(uint amount) public {
@@ -76,10 +76,6 @@ contract Market is MarketInterface {
         require(controller.getAccountLiquidity(msg.sender) >= controller.prices(address(this)) * amount * 2, "Not enough account liquidity");
         
         require(token.transfer(msg.sender, amount), "No enough tokens to borrow");
-        
-        BorrowSnapshot storage borrowSnapshot = borrows[msg.sender];
-        
-        borrowSnapshot.principal = 
         
         borrows[msg.sender].principal += amount;
         totalBorrows += amount;

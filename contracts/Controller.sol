@@ -48,7 +48,7 @@ contract Controller {
         for (uint k = 0; k < marketList.length; k++) {
             MarketInterface market = MarketInterface(marketList[k]);
             uint price = prices[marketList[k]];
-            liquidity += market.depositsBy(account) * price;
+            liquidity += market.lendingsBy(account) * price;
             liquidity -= market.borrowsBy(account) * collateralFactor / MANTISSA * price;
         }
         

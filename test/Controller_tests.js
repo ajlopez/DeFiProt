@@ -102,7 +102,7 @@ contract('Controller', function (accounts) {
             await this.controller.setCollateralFactor(2000000);
         });
         
-        it('account liquidity using deposits', async function () {
+        it('account liquidity using lendings', async function () {
             const result = await this.controller.getAccountLiquidity(alice);
             
             assert.equal(result, 0);
@@ -122,7 +122,7 @@ contract('Controller', function (accounts) {
             assert.equal(result3, 100 * 10 + 100 * 20);
         });
         
-        it('account liquidity using deposits and borrows', async function () {
+        it('account liquidity using lendings and borrows', async function () {
             const result = await this.controller.getAccountLiquidity(alice);
             
             assert.equal(result, 0);
