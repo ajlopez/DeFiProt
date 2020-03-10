@@ -9,8 +9,19 @@ const client = rskapi.client(config.host);
 const from = utils.getAccount(config, process.argv[2]);
 const to = utils.getInstanceAddress(config, process.argv[3]);
 const fn = process.argv[4];
-let args = utils.getArguments(config, process.argv[5]);
-const fast = process.argv[6] === 'fast';
+
+let args;
+let fast;
+
+if (process.argv[5] === 'fast' && !process.argv[6]) {
+    fast = true;
+    args = null;
+}
+else {
+    args = utils.getArguments(config, process.argv[5]);
+    fast = process.argv[6] === 'fast';
+}
+
 
 (async function() {
     try {
