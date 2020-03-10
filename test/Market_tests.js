@@ -40,7 +40,7 @@ contract('Market', function (accounts) {
             assert.equal(borrowIndex, FACTOR);
         });
         
-        it('initial borrow irate', async function () {
+        it('initial borrow rate', async function () {
             const borrowRate = await this.market.borrowRate();
             
             assert.equal(borrowRate, 1000);
@@ -202,6 +202,9 @@ contract('Market', function (accounts) {
     });
     
     describe('two markets with lendings', function () {
+        let creationBlock;
+        let creationBlock2;
+        
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
             this.market = await Market.new(this.token.address, 1000);
@@ -221,18 +224,21 @@ contract('Market', function (accounts) {
             await this.market.mint(1000, { from: alice });
             await this.token2.approve(this.market2.address, 4000, { from: bob });
             await this.market2.mint(4000, { from: bob });
+            
+            creationBlock = (await this.market.accrualBlockNumber()).toNumber();
+            creationBlock2 = (await this.market2.accrualBlockNumber()).toNumber();
         });
         
         it('borrow from market using other market as collateral', async function () {
-            await this.market.borrow(500, { from: bob });
+            await this.market.borrow(1000, { from: bob });
             
             const totalBorrows = await this.market.totalBorrows();
             
-            assert.equal(totalBorrows, 500);
+            assert.equal(totalBorrows, 1000);
             
             const borrowed = await this.market.borrowsBy(bob);
             
-            assert.equal(borrowed, 500);
+            assert.equal(borrowed, 1000);
             
             const aliceMarketLendings = await this.market.lendingsBy(alice);
             const bobMarketLendings = await this.market.lendingsBy(bob);
@@ -248,7 +254,7 @@ contract('Market', function (accounts) {
             
             const newBobTokenBalance = await this.token.balanceOf(bob);
             
-            assert.equal(newBobTokenBalance, 500);
+            assert.equal(newBobTokenBalance, 1000);
             
             const newTotalLendings = await this.market.totalLendings();
             
@@ -256,7 +262,55 @@ contract('Market', function (accounts) {
             
             const bobLiquidity = await this.controller.getAccountLiquidity(bob);
             
-            assert.equal(bobLiquidity, 4000 - 500 * 2);
+            assert.equal(bobLiquidity, 4000 - 1000 * 2);
+        });
+        
+        it('accrue interest', async function () {
+            await this.market.borrow(1000, { from: bob });
+
+            const borrowIndex = (await this.market.borrowIndex()).toNumber();
+            const borrowRate = (await this.market.borrowRate()).toNumber();
+            const totalBorrows = (await this.market.totalBorrows()).toNumber();
+            
+            assert.equal(totalBorrows, 1000);
+            
+            const borrowed = await this.market.borrowsBy(bob);
+            
+            assert.equal(borrowed, 1000);
+            
+            const accrualBlockNumber = (await this.market.accrualBlockNumber()).toNumber();
+            
+            console.log('creation block', creationBlock);
+            console.log('accrual block after borrow', accrualBlockNumber);
+            
+            assert.ok(creationBlock < accrualBlockNumber);
+            
+            await this.market.accrueInterest();
+            
+            const newAccrualBlockNumber = (await this.market.accrualBlockNumber()).toNumber();
+            console.log('accrual block after accrue interest', newAccrualBlockNumber);
+            
+            assert.ok(accrualBlockNumber < newAccrualBlockNumber);
+            
+            const newTotalBorrows = (await this.market.totalBorrows()).toNumber();
+            
+            assert.ok(newTotalBorrows > totalBorrows);
+            
+            const newBorrowIndex = (await this.market.borrowIndex()).toNumber();
+
+            console.log('borrow index', borrowIndex);
+            console.log('borrow index after accrue interest', newBorrowIndex);
+            console.log('total borrows', totalBorrows);
+            console.log('total borrows after accrue interest', newTotalBorrows);
+            
+            assert.ok(newBorrowIndex > borrowIndex);
+            
+            const blockDelta = newAccrualBlockNumber - accrualBlockNumber;
+            const simpleInterestFactor = borrowRate * blockDelta;
+            const interestAccumulated = Math.floor(simpleInterestFactor * totalBorrows / FACTOR);
+            
+            assert.equal(newTotalBorrows, Math.floor(totalBorrows + interestAccumulated));
+            assert.equal(newBorrowIndex, Math.floor(simpleInterestFactor * borrowIndex / FACTOR) + borrowIndex);
         });
     });
 });

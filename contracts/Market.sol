@@ -73,12 +73,35 @@ contract Market is MarketInterface {
     
     function borrow(uint amount) public {
         require(token.balanceOf(address(this)) >= amount);
+        accrueInterest();
         require(controller.getAccountLiquidity(msg.sender) >= controller.prices(address(this)) * amount * 2, "Not enough account liquidity");
         
         require(token.transfer(msg.sender, amount), "No enough tokens to borrow");
         
         borrows[msg.sender].principal += amount;
         totalBorrows += amount;
+    }
+    
+    function accrueInterest() public {
+        uint currentBlockNumber = block.number;
+        
+        if (currentBlockNumber <= accrualBlockNumber)
+            return;
+            
+        if (totalBorrows == 0) {
+            accrualBlockNumber = currentBlockNumber;
+            
+            return;
+        }
+            
+        uint blockDelta = currentBlockNumber - accrualBlockNumber;
+        
+        uint simpleInterestFactor = blockDelta * borrowRate;
+        uint interestAccumulated = simpleInterestFactor * totalBorrows / FACTOR;
+        
+        borrowIndex = simpleInterestFactor * borrowIndex / FACTOR + borrowIndex;
+        totalBorrows = interestAccumulated + totalBorrows;
+        accrualBlockNumber = currentBlockNumber;
     }
 }
 
