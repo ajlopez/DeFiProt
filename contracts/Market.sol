@@ -14,6 +14,7 @@ contract Market is MarketInterface {
     uint public accrualBlockNumber;
     uint public borrowIndex;
     uint public totalBorrows;
+    uint public borrowRate;
 
     struct BorrowSnapshot {
         uint principal;
@@ -25,10 +26,11 @@ contract Market is MarketInterface {
     
     uint constant FACTOR = 1e6;
     
-    constructor(ERC20 _token) public {
+    constructor(ERC20 _token, uint _borrowRate) public {
         owner = msg.sender;
         token = _token;
         borrowIndex = FACTOR;
+        borrowRate = _borrowRate;
         accrualBlockNumber = block.number;
     }
     

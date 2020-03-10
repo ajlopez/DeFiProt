@@ -13,9 +13,9 @@ contract('Market', function (accounts) {
     
     beforeEach(async function() {
         this.token = await Token.new(1000000, "Token", 0, "TOK");
-        this.market = await Market.new(this.token.address);
+        this.market = await Market.new(this.token.address, 1000);
         this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-        this.market2 = await Market.new(this.token2.address);
+        this.market2 = await Market.new(this.token2.address, 1000);
         this.controller = await Controller.new();
     });
     
@@ -37,6 +37,12 @@ contract('Market', function (accounts) {
         const borrowIndex = await this.market.borrowIndex();
         
         assert.equal(borrowIndex, FACTOR);
+    });
+    
+    it('initial borrow irate', async function () {
+        const borrowRate = await this.market.borrowRate();
+        
+        assert.equal(borrowRate, 1000);
     });
     
     it('initial accrual block number', async function () {

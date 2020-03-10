@@ -13,7 +13,7 @@ contract('Controller', function (accounts) {
     describe('one token and one market', function () {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address);
+            this.market = await Market.new(this.token.address, 1000);
             this.controller = await Controller.new();
         });
         
@@ -87,8 +87,8 @@ contract('Controller', function (accounts) {
             await this.token.allocateTo(charlie, 1000000);
             await this.token2.allocateTo(charlie, 1000000);
             
-            this.market = await Market.new(this.token.address);
-            this.market2 = await Market.new(this.token2.address);            
+            this.market = await Market.new(this.token.address, 1000);
+            this.market2 = await Market.new(this.token2.address, 1000);            
           
             this.controller = await Controller.new();
             await this.controller.addMarket(this.market.address);
