@@ -39,6 +39,12 @@ contract('Market', function (accounts) {
         assert.equal(borrowIndex, FACTOR);
     });
     
+    it('initial accrual block number', async function () {
+        const accrualBlockNumber = await this.market.accrualBlockNumber();
+        
+        assert.ok(accrualBlockNumber > 0);
+    });
+    
     it('initial borrows are zero', async function () {
         const borrows = await this.market.borrowsBy(alice);
         

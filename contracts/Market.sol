@@ -8,17 +8,18 @@ contract Market is MarketInterface {
 
     ERC20 public token;
     Controller public controller;
-
+    
     uint public totalDeposits;
+
+    uint public accrualBlockNumber;
+    uint public borrowIndex;
     uint public totalBorrows;
 
     struct BorrowSnapshot {
         uint principal;
         uint interestIndex;
     }
-    
-    uint public borrowIndex;
-    
+        
     mapping (address => uint) deposits;
     mapping (address => BorrowSnapshot) borrows;
     
@@ -28,6 +29,7 @@ contract Market is MarketInterface {
         owner = msg.sender;
         token = _token;
         borrowIndex = FACTOR;
+        accrualBlockNumber = block.number;
     }
     
     modifier onlyOwner() {
