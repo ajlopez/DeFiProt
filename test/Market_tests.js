@@ -217,11 +217,11 @@ contract('Market', function (accounts) {
             await this.controller.addMarket(this.market.address);
             await this.controller.addMarket(this.market2.address);
             await this.controller.setPrice(this.market.address, 1);
-            await this.controller.setPrice(this.market2.address, 1);
+            await this.controller.setPrice(this.market2.address, 2);
             await this.controller.setCollateralFactor(2000000);
 
-            await this.token.approve(this.market.address, 1000, { from: alice });
-            await this.market.mint(1000, { from: alice });
+            await this.token.approve(this.market.address, 2000, { from: alice });
+            await this.market.mint(2000, { from: alice });
             await this.token2.approve(this.market2.address, 4000, { from: bob });
             await this.market2.mint(4000, { from: bob });
             
@@ -243,7 +243,7 @@ contract('Market', function (accounts) {
             const aliceMarketLendings = await this.market.lendingsBy(alice);
             const bobMarketLendings = await this.market.lendingsBy(bob);
             
-            assert.equal(aliceMarketLendings, 1000);
+            assert.equal(aliceMarketLendings, 2000);
             assert.equal(bobMarketLendings, 0);
             
             const aliceMarketLendings2 = await this.market2.lendingsBy(alice);
@@ -258,11 +258,11 @@ contract('Market', function (accounts) {
             
             const newTotalLendings = await this.market.totalLendings();
             
-            assert.equal(newTotalLendings, 1000);
+            assert.equal(newTotalLendings, 2000);
             
             const bobLiquidity = await this.controller.getAccountLiquidity(bob);
             
-            assert.equal(bobLiquidity, 4000 - 1000 * 2);
+            assert.equal(bobLiquidity, 4000 * 2 - 1000 * 2);
         });
         
         it('accrue interest', async function () {
@@ -311,6 +311,17 @@ contract('Market', function (accounts) {
             
             assert.equal(newTotalBorrows, Math.floor(totalBorrows + interestAccumulated));
             assert.equal(newBorrowIndex, Math.floor(simpleInterestFactor * borrowIndex / FACTOR) + borrowIndex);
+        });
+
+        it('borrow twice', async function () {
+            await this.market.borrow(1000, { from: bob });
+            await this.market.borrow(1000, { from: bob });
+            
+            const totalBorrows = (await this.market.totalBorrows()).toNumber();
+            const borrowed = (await this.market.borrowsBy(bob)).toNumber();
+            
+            assert.ok(totalBorrows > 2000);
+            assert.equal(totalBorrows, borrowed);
         });
     });
 });
