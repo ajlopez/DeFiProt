@@ -97,23 +97,24 @@ contract Market is MarketInterface {
     function accrueInterest() public {
         uint currentBlockNumber = block.number;
         
-        if (currentBlockNumber <= accrualBlockNumber)
-            return;
+        (totalBorrows, borrowIndex) = calculateBorrowDataAtBlock(currentBlockNumber);
+        accrualBlockNumber = currentBlockNumber;
+    }
+    
+    function calculateBorrowDataAtBlock(uint newBlockNumber) internal view returns (uint newTotalBorrows, uint newBorrowIndex) {
+        if (newBlockNumber <= accrualBlockNumber)
+            return (totalBorrows, borrowIndex);
             
-        if (totalBorrows == 0) {
-            accrualBlockNumber = currentBlockNumber;
+        if (totalBorrows == 0)
+            return (totalBorrows, borrowIndex);
             
-            return;
-        }
-            
-        uint blockDelta = currentBlockNumber - accrualBlockNumber;
+        uint blockDelta = newBlockNumber - accrualBlockNumber;
         
         uint simpleInterestFactor = blockDelta * borrowRate;
         uint interestAccumulated = simpleInterestFactor * totalBorrows / FACTOR;
         
-        borrowIndex = simpleInterestFactor * borrowIndex / FACTOR + borrowIndex;
-        totalBorrows = interestAccumulated + totalBorrows;
-        accrualBlockNumber = currentBlockNumber;
+        newBorrowIndex = simpleInterestFactor * borrowIndex / FACTOR + borrowIndex;        
+        newTotalBorrows = interestAccumulated + totalBorrows;
     }
 }
 
