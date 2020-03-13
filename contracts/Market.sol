@@ -116,5 +116,14 @@ contract Market is MarketInterface {
         newBorrowIndex = simpleInterestFactor * borrowIndex / FACTOR + borrowIndex;        
         newTotalBorrows = interestAccumulated + totalBorrows;
     }
+    
+    function getUpdatedTotalBorrows() public view returns (uint) {
+        uint newTotalBorrows;
+        uint newBorrowIndex;
+        
+        (newTotalBorrows, newBorrowIndex) = calculateBorrowDataAtBlock(block.number);
+        
+        return newTotalBorrows;
+    }
 }
 

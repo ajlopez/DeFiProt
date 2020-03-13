@@ -293,8 +293,10 @@ contract('Market', function (accounts) {
             assert.ok(accrualBlockNumber < newAccrualBlockNumber);
             
             const newTotalBorrows = (await this.market.totalBorrows()).toNumber();
+            const updatedTotalBorrows = (await this.market.getUpdatedTotalBorrows()).toNumber();
             
             assert.ok(newTotalBorrows > totalBorrows);
+            assert.ok(updatedTotalBorrows > totalBorrows);
             
             const newBorrowIndex = (await this.market.borrowIndex()).toNumber();
 
