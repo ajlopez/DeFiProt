@@ -65,28 +65,26 @@ const config = {
             "contract": "FaucetToken"
         },
         "market1": {
-            "address": "0x4ef82e1bf6af0f621fc40ea5f86d91a769af8afd",
+            "address": "0x90c9b88d4f3f0479bc87590ab144c4c57d160433",
             "contract": "Market"
         },
         "market2": {
-            "address": "0xa62464665be14a84ad8524315f07877ce16c0216",
+            "address": "0xdd658c463268e4b0fbf97b279ef1ff25b57ca9b8",
             "contract": "Market"
         },
         "market3": {
-            "address": "0x8f1339d7cfb67d2f34cf7e291802ccfefec12b06",
+            "address": "0x5659d1d7fb27e735aa06ec82855976c3c99990b5",
             "contract": "Market"
         },
         "controller": {
-            "address": "0x0bcf17063ad603630117e3fae1151ecb85efb7b3",
+            "address": "0xd484692fbdbbaa38cc3c31d80c0da08b29ed9b2b",
             "contract": "Controller"
-        },
-        "market4": {
-            "address": "0xa3ac2760c815f3579097b3c3e267a6bcacf6ba82",
-            "contract": "Market"
         }
     },
     "options": {}
 };
+
+const rootaddress = config.accounts.root.address ? config.accounts.root.address : config.accounts.root;
 
 const fnhashes = {
     'balanceOf(address)': '0x1d7976f3'
@@ -129,7 +127,7 @@ var app = (function () {
         }
          
         function fetchAccountBalance(accountname, account, assetname) {
-            const address = account.address;
+            const address = account.address ? account.address : account;
             
             var request = {
                 id: ++id,
@@ -149,19 +147,19 @@ var app = (function () {
         }
         
         function fetchAccountAssetBalance(accountname, account, assetname) {
-            const address = account.address;
+            const address = account.address ? account.address : account;
             
             const request = {
                 id: ++id,
                 jsonrpc: "2.0",
                 method: "eth_call",
                 params: [ {
-                    from: config.accounts.root.address,
+                    from: rootaddress,
                     to: config.instances[assetname].address,
                     gas: '0x010000',
                     gasPrice: '0x0',
                     value: '0x0',
-                    data: '0x70a08231' + toHex(account.address)
+                    data: '0x70a08231' + toHex(address)
                 }, 'latest' ]
             };
             
@@ -194,14 +192,14 @@ var app = (function () {
         }
          
         function fetchAccountMarketPositions(accountname, account, marketname, market) {
-            const address = account.address;
+            const address = account.address ? account.address : account;
             
             const request = {
                 id: ++id,
                 jsonrpc: "2.0",
                 method: "eth_call",
                 params: [ {
-                    from: config.accounts.root.address,
+                    from: rootaddress,
                     to: config.instances[marketname].address,
                     gas: '0x010000',
                     gasPrice: '0x0',
@@ -224,7 +222,7 @@ var app = (function () {
                 jsonrpc: "2.0",
                 method: "eth_call",
                 params: [ {
-                    from: config.accounts.root.address,
+                    from: rootaddress,
                     to: config.instances[marketname].address,
                     gas: '0x010000',
                     gasPrice: '0x0',
@@ -253,14 +251,14 @@ var app = (function () {
         }
         
         function fetchAccountLiquidity(accountname, account) {
-            const address = account.address;
+            const address = account.address ? account.address : account;
             
             var request = {
                 id: ++id,
                 jsonrpc: "2.0",
                 method: "eth_call",
                 params: [ {
-                    from: config.accounts.root.address,
+                    from: rootaddress,
                     to: config.instances.controller.address,
                     gas: '0x010000',
                     gasPrice: '0x0',
@@ -294,7 +292,7 @@ var app = (function () {
                 jsonrpc: "2.0",
                 method: "eth_call",
                 params: [ {
-                    from: config.accounts.root.address,
+                    from: rootaddress,
                     to: config.instances[marketname].address,
                     gas: '0x010000',
                     gasPrice: '0x0',
@@ -317,12 +315,12 @@ var app = (function () {
                 jsonrpc: "2.0",
                 method: "eth_call",
                 params: [ {
-                    from: config.accounts.root.address,
+                    from: rootaddress,
                     to: config.instances[marketname].address,
                     gas: '0x010000',
                     gasPrice: '0x0',
                     value: '0x0',
-                    data: '0x47bd3718'
+                    data: '0x78f1dc03'
                 }, 'latest' ]
             };
                         
@@ -344,7 +342,7 @@ var app = (function () {
                 jsonrpc: "2.0",
                 method: "eth_call",
                 params: [ {
-                    from: config.accounts.root.address,
+                    from: rootaddress,
                     to: config.instances[assetname].address,
                     gas: '0x010000',
                     gasPrice: '0x0',
@@ -403,74 +401,6 @@ var app = (function () {
 
 // https://ethereum.stackexchange.com/questions/8579/how-to-use-ethereumjs-tx-js-in-a-browser
 
-    function distributeTokenWithSignature(network, from, balance, token, accounts, nonce) {
-        let privateKey = from.privateKey;
-        
-        if (privateKey.startsWith('0x'))
-            privateKey = privateKey.substring(2);
-        
-        const privateBuffer = new ethereumjs.Buffer.Buffer(privateKey, 'hex');
-        
-        var to = randomAccount(accounts);
-        var amount = Math.floor(Math.random() * balance / 2);
-        
-        const transaction = {
-            nonce: nonce,
-            to: token,
-            value: 0,
-            gas: 6000000,
-            gasPrice: 0,
-            data: "0xa9059cbb000000000000000000000000" + to.substring(2) + toHex(amount)
-        };
-        
-        const tx = new ethereumjs.Tx(transaction);
-        tx.sign(privateBuffer);
-        const serializedTx = tx.serialize().toString('hex'); 
-        
-        var request = {
-            id: ++id,
-            jsonrpc: "2.0",
-            method: "eth_sendRawTransaction",
-            params: [ serializedTx ]
-        };
-        
-        post(getHost(network), request, console.log);
-    }
-    
-    function distributeToken(network, from, balance, token, accounts) {
-        if (from && from.privateKey) {
-            getNonce(network, from.address, function (data) {
-                if (typeof data === 'string')
-                    data = JSON.parse(data);
-                
-                distributeTokenWithSignature(network, from, balance, token, accounts, data.result);
-            });
-            
-            return;
-        }
-        
-        var to = randomAccount(accounts);
-        var amount = Math.floor(Math.random() * balance / 2);
-        
-        var tx = {
-            from: from,
-            to: token,
-            value: 0,
-            gas: 6000000,
-            gasPrice: 0,
-            data: "0xa9059cbb000000000000000000000000" + to.substring(2) + toHex(amount)
-        };
-        
-        var request = {
-            id: ++id,
-            jsonrpc: "2.0",
-            method: "eth_sendTransaction",
-            params: [ tx ]
-        };
-        
-        post(getHost(network), request, console.log);
-    }
-    
     function transferWithSignature(network, from, to, token, amount, nonce) {
         let privateKey = from.privateKey;
         
