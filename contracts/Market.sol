@@ -139,5 +139,24 @@ contract Market is MarketInterface {
         
         return newTotalBorrows;
     }
+    
+    function payBorrow(uint amount) public {
+        BorrowSnapshot storage snapshot = borrows[msg.sender];
+        
+        require(snapshot.principal > 0);
+        
+        accrueInterest();
+        
+        uint updatedPrincipal = updatedBorrowsBy(msg.sender);
+        
+        require(updatedPrincipal >= amount);
+        
+        require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+        
+        snapshot.principal = updatedPrincipal - amount;
+        snapshot.interestIndex = borrowIndex;
+        
+        totalBorrows -= amount;
+    }
 }
 

@@ -336,5 +336,71 @@ contract('Market', function (accounts) {
             assert.equal(totalBorrows, borrowed);
         });
     });
+    
+    describe('pay borrow', function () {
+        let creationBlock;
+        let creationBlock2;
+        
+        beforeEach(async function() {
+            this.token = await Token.new(1000000, "Token", 0, "TOK");
+            this.market = await Market.new(this.token.address, 1000);
+            this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
+            this.market2 = await Market.new(this.token2.address, 1000);
+            this.controller = await Controller.new();
+
+            await this.market.setController(this.controller.address);
+            await this.market2.setController(this.controller.address);
+            await this.controller.addMarket(this.market.address);
+            await this.controller.addMarket(this.market2.address);
+            await this.controller.setPrice(this.market.address, 1);
+            await this.controller.setPrice(this.market2.address, 2);
+            await this.controller.setCollateralFactor(2000000);
+
+            await this.token.approve(this.market.address, 2000, { from: alice });
+            await this.market.mint(2000, { from: alice });
+            await this.token2.approve(this.market2.address, 4000, { from: bob });
+            await this.market2.mint(4000, { from: bob });
+            
+            creationBlock = (await this.market.accrualBlockNumber()).toNumber();
+            creationBlock2 = (await this.market2.accrualBlockNumber()).toNumber();
+
+            await this.market.borrow(1000, { from: bob });
+        });
+        
+        it('cannot pay no borrow', async function () {
+            expectThrow(this.market.payBorrow(1000, { from: alice }));
+            
+            const totalBorrows = await this.market.totalBorrows();
+            
+            assert.equal(totalBorrows, 1000);
+        });
+        
+        it('cannot pay too much', async function () {
+            await this.token.allocateTo(bob, 10000);
+            await this.token.approve(this.market.address, 2000, { from: bob });
+            expectThrow(this.market.payBorrow(2000, { from: bob }));
+            
+            const totalBorrows = await this.market.totalBorrows();
+            
+            assert.equal(totalBorrows, 1000);
+        });
+        
+        it('pay borrow', async function () {
+            await this.token.approve(this.market.address, 1000, { from: bob });
+            await this.market.payBorrow(1000, { from: bob });
+            
+            const totalBorrows = (await this.market.totalBorrows()).toNumber();
+            const borrowsByBob = (await this.market.borrowsBy(bob)).toNumber();
+
+            console.log('total borrows', totalBorrows);
+            console.log('borrows by bob', borrowsByBob);
+         
+            assert.ok(totalBorrows > 0);
+            assert.ok(borrowsByBob > 0);
+            assert.ok(totalBorrows < 1000);
+            assert.ok(borrowsByBob < 1000);
+            assert.equal(totalBorrows, borrowsByBob);
+        });
+    });
 });
 
