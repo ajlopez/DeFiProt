@@ -56,6 +56,10 @@ contract('Market', function (accounts) {
             const borrows = await this.market.borrowsBy(alice);
             
             assert.equal(borrows, 0);
+            
+            const updatedBorrows = await this.market.updatedBorrowsBy(alice);
+            
+            assert.equal(updatedBorrows, 0);
         });
         
         it('mint amount', async function () {
@@ -240,6 +244,10 @@ contract('Market', function (accounts) {
             
             assert.equal(borrowed, 1000);
             
+            const updatedBorrowed = await this.market.updatedBorrowsBy(bob);
+            
+            assert.ok(updatedBorrowed.toNumber() >= 1000);
+            
             const aliceMarketLendings = await this.market.lendingsBy(alice);
             const bobMarketLendings = await this.market.lendingsBy(bob);
             
@@ -294,9 +302,11 @@ contract('Market', function (accounts) {
             
             const newTotalBorrows = (await this.market.totalBorrows()).toNumber();
             const updatedTotalBorrows = (await this.market.getUpdatedTotalBorrows()).toNumber();
+            const updatedBobBorrows = (await this.market.updatedBorrowsBy(bob)).toNumber();
             
             assert.ok(newTotalBorrows > totalBorrows);
             assert.ok(updatedTotalBorrows > totalBorrows);
+            assert.ok(updatedBobBorrows > totalBorrows);
             
             const newBorrowIndex = (await this.market.borrowIndex()).toNumber();
 

@@ -52,6 +52,20 @@ contract Market is MarketInterface {
         return borrows[user].principal;
     }
     
+    function updatedBorrowsBy(address user) public view returns (uint) {
+        BorrowSnapshot storage snapshot = borrows[user];
+        
+        if (snapshot.principal == 0)
+            return 0;
+        
+        uint newTotalBorrows;
+        uint newBorrowIndex;
+        
+        (newTotalBorrows, newBorrowIndex) = calculateBorrowDataAtBlock(block.number);
+        
+        return snapshot.principal * newBorrowIndex / snapshot.interestIndex;
+    }
+    
     function setController(Controller _controller) public onlyOwner {
         controller = _controller;
     }
