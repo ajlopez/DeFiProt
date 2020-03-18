@@ -375,16 +375,6 @@ contract('Market', function (accounts) {
             assert.equal(totalBorrows, 1000);
         });
         
-        it('cannot pay too much', async function () {
-            await this.token.allocateTo(bob, 10000);
-            await this.token.approve(this.market.address, 2000, { from: bob });
-            expectThrow(this.market.payBorrow(2000, { from: bob }));
-            
-            const totalBorrows = await this.market.totalBorrows();
-            
-            assert.equal(totalBorrows, 1000);
-        });
-        
         it('pay borrow', async function () {
             await this.token.approve(this.market.address, 1000, { from: bob });
             await this.market.payBorrow(1000, { from: bob });
@@ -401,6 +391,24 @@ contract('Market', function (accounts) {
             assert.ok(borrowsByBob < 1000);
             assert.equal(totalBorrows, borrowsByBob);
         });
+        
+        it('pay too much', async function () {
+            await this.token.allocateTo(bob, 10000);
+            await this.token.approve(this.market.address, 2000, { from: bob });
+            await this.market.payBorrow(2000, { from: bob });
+            
+            const totalBorrows = (await this.market.totalBorrows().toNumber();
+            const lendingsByBob = (await this.market.lendingsBy(bob)).toNumber();
+            const borrowsByBob = (await this.market.borrowsBy(bob)).toNumber();
+            
+            console.log('total borrows', totalBorrows);
+            console.log('bob lendings', lendingsByBob);
+            
+            assert.equal(totalBorrows, 0);
+            assert.equal(borrowsByBob, 0);
+            assert.ok(lendingsByBob > 900);
+            assert.ok(lendingsByBob < 1000);
+        });        
     });
 });
 

@@ -149,14 +149,22 @@ contract Market is MarketInterface {
         
         uint updatedPrincipal = updatedBorrowsBy(msg.sender);
         
-        require(updatedPrincipal >= amount);
-        
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+
+        uint additional;
+        
+        if (updatedPrincipal < amount) {
+            additional = amount - updatedPrincipal;
+            amount = updatedPrincipal;
+        }
         
         snapshot.principal = updatedPrincipal - amount;
         snapshot.interestIndex = borrowIndex;
         
         totalBorrows -= amount;
+        
+        lendings[msg.sender] += additional;
+        totalLendings += additional;
     }
 }
 
