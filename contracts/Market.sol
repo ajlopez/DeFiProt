@@ -48,6 +48,13 @@ contract Market is MarketInterface {
         return token.balanceOf(address(this));
     }
     
+    function utilizationRate(uint cash, uint borrowed, uint reserves) public pure returns (uint) {
+        if (borrowed == 0)
+            return 0;
+
+        return borrowed * FACTOR / (cash + borrowed - reserves);
+    }
+
     function lendingsBy(address user) public view returns (uint) {
         return lendings[user];
     }
