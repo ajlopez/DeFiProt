@@ -94,6 +94,7 @@ contract Market is MarketInterface {
     function mint(uint amount) public {
         // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+        accrueInterest();
         lendings[msg.sender] += amount;
         totalLendings += amount;
     }

@@ -52,7 +52,7 @@ contract('Market', function (accounts) {
             assert.equal(borrowRate, 1000);
         });
         
-        it('initial borrow rate', async function () {
+        it('initial borrow rate per block', async function () {
             const borrowRate = await this.market.borrowRatePerBlock();
             
             assert.equal(borrowRate, 1000);
@@ -107,6 +107,10 @@ contract('Market', function (accounts) {
             const cash = await this.market.getCash();
             
             assert.equal(cash, 1000);
+            
+            const borrowRate = await this.market.borrowRatePerBlock();
+            
+            assert.equal(borrowRate, 1000);
         });
         
         it('cannot mint amount without enough tokens', async function () {
@@ -315,6 +319,10 @@ contract('Market', function (accounts) {
             const bobLiquidity = await this.controller.getAccountLiquidity(bob);
             
             assert.equal(bobLiquidity, 4000 * 2 - 1000 * 2);
+
+            const borrowRate = (await this.market.borrowRatePerBlock()).toNumber();
+            
+            assert.equal(borrowRate, Math.floor(FACTOR * 1000 / (1000 + 1000) / 1000) + 1000);
         });
         
         it('accrue interest', async function () {
