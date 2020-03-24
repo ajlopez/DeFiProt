@@ -14,7 +14,7 @@ contract Market is MarketInterface {
     uint public accrualBlockNumber;
     uint public borrowIndex;
     uint public totalBorrows;
-    uint public borrowRate;
+    uint public baseBorrowRate;
 
     struct BorrowSnapshot {
         uint principal;
@@ -26,11 +26,11 @@ contract Market is MarketInterface {
     
     uint constant FACTOR = 1e6;
     
-    constructor(ERC20 _token, uint _borrowRate) public {
+    constructor(ERC20 _token, uint _baseBorrowRate) public {
         owner = msg.sender;
         token = _token;
         borrowIndex = FACTOR;
-        borrowRate = _borrowRate;
+        baseBorrowRate = _baseBorrowRate;
         accrualBlockNumber = block.number;
     }
     
@@ -58,7 +58,11 @@ contract Market is MarketInterface {
     function getBorrowRate(uint cash, uint borrowed, uint reserves) public view returns (uint) {
         uint ur = utilizationRate(cash, borrowed, reserves);
         
-        return ur / 1000 + borrowRate;
+        return ur / 1000 + baseBorrowRate;
+    }
+
+    function borrowRatePerBlock() public view returns (uint) {
+        return getBorrowRate(getCash(), totalBorrows, 0);
     }
 
     function lendingsBy(address user) public view returns (uint) {
@@ -141,7 +145,7 @@ contract Market is MarketInterface {
             
         uint blockDelta = newBlockNumber - accrualBlockNumber;
         
-        uint simpleInterestFactor = blockDelta * borrowRate;
+        uint simpleInterestFactor = blockDelta * borrowRatePerBlock();
         uint interestAccumulated = simpleInterestFactor * totalBorrows / FACTOR;
         
         newBorrowIndex = simpleInterestFactor * borrowIndex / FACTOR + borrowIndex;        

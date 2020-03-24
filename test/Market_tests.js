@@ -46,8 +46,14 @@ contract('Market', function (accounts) {
             assert.equal(borrowIndex, FACTOR);
         });
         
+        it('base borrow rate', async function () {
+            const borrowRate = await this.market.baseBorrowRate();
+            
+            assert.equal(borrowRate, 1000);
+        });
+        
         it('initial borrow rate', async function () {
-            const borrowRate = await this.market.borrowRate();
+            const borrowRate = await this.market.borrowRatePerBlock();
             
             assert.equal(borrowRate, 1000);
         });
@@ -315,7 +321,7 @@ contract('Market', function (accounts) {
             await this.market.borrow(1000, { from: bob });
 
             const borrowIndex = (await this.market.borrowIndex()).toNumber();
-            const borrowRate = (await this.market.borrowRate()).toNumber();
+            const borrowRate = (await this.market.borrowRatePerBlock()).toNumber();
             const totalBorrows = (await this.market.totalBorrows()).toNumber();
             
             assert.equal(totalBorrows, 1000);
