@@ -44,6 +44,10 @@ contract Market is MarketInterface {
         _;
     }
     
+    function getCash() public view returns (uint) {
+        return token.balanceOf(address(this));
+    }
+    
     function lendingsBy(address user) public view returns (uint) {
         return lendings[user];
     }

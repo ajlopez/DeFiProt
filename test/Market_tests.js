@@ -34,6 +34,12 @@ contract('Market', function (accounts) {
             assert.equal(totalLendings, 0);
         });
         
+        it('initial cash', async function () {
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 0);
+        });
+        
         it('initial borrow index', async function () {
             const borrowIndex = await this.market.borrowIndex();
             
@@ -79,6 +85,10 @@ contract('Market', function (accounts) {
             const totalLendings = await this.market.totalLendings();
             
             assert.equal(totalLendings, 1000);
+            
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 1000);
         });
         
         it('cannot mint amount without enough tokens', async function () {
@@ -98,6 +108,10 @@ contract('Market', function (accounts) {
             const totalLendings = await this.market.totalLendings();
             
             assert.equal(totalLendings, 0);
+
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 0);
         });
         
         it('redeem amount', async function () {
@@ -133,6 +147,10 @@ contract('Market', function (accounts) {
             const newTotalLendings = await this.market.totalLendings();
             
             assert.equal(newTotalLendings, 500);
+
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 500);
         });
         
         it('cannot redeem amount without enough lendings', async function () {
@@ -158,6 +176,10 @@ contract('Market', function (accounts) {
             const marketBalance = await this.token.balanceOf(this.market.address);
             
             assert.equal(marketBalance, 2000);
+            
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 2000);
                     
             const totalLendings = await this.market.totalLendings();
             
@@ -243,6 +265,10 @@ contract('Market', function (accounts) {
             const borrowed = await this.market.borrowsBy(bob);
             
             assert.equal(borrowed, 1000);
+            
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 1000);
             
             const updatedBorrowed = await this.market.updatedBorrowsBy(bob);
             
@@ -390,6 +416,10 @@ contract('Market', function (accounts) {
             assert.ok(totalBorrows < 1000);
             assert.ok(borrowsByBob < 1000);
             assert.equal(totalBorrows, borrowsByBob);
+            
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 2000);
         });
         
         it('pay too much', async function () {
@@ -397,7 +427,7 @@ contract('Market', function (accounts) {
             await this.token.approve(this.market.address, 2000, { from: bob });
             await this.market.payBorrow(2000, { from: bob });
             
-            const totalBorrows = (await this.market.totalBorrows().toNumber();
+            const totalBorrows = (await this.market.totalBorrows()).toNumber();
             const lendingsByBob = (await this.market.lendingsBy(bob)).toNumber();
             const borrowsByBob = (await this.market.borrowsBy(bob)).toNumber();
             
@@ -408,6 +438,10 @@ contract('Market', function (accounts) {
             assert.equal(borrowsByBob, 0);
             assert.ok(lendingsByBob > 900);
             assert.ok(lendingsByBob < 1000);
+            
+            const cash = await this.market.getCash();
+            
+            assert.equal(cash, 3000);
         });        
     });
 });
