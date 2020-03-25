@@ -86,6 +86,12 @@ contract('Market', function (accounts) {
             assert.equal(await this.market.getBorrowRate(2000, 1000, 1000), FACTOR / 2 / 1000 + 1000);
         }),
         
+        it('get supply rate', async function () {
+            assert.equal(await this.market.getSupplyRate(0, 0, 0), 0);
+            assert.equal(await this.market.getSupplyRate(1000, 1000, 0), 1 / 2 * (FACTOR / 2 / 1000 + 1000));
+            assert.equal(await this.market.getSupplyRate(2000, 1000, 1000), 1 / 2 * (FACTOR / 2 / 1000 + 1000));
+        }),
+        
         it('mint amount', async function () {
             await this.token.approve(this.market.address, 1000, { from: alice });
             await this.market.mint(1000, { from: alice });

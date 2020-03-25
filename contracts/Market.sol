@@ -61,6 +61,12 @@ contract Market is MarketInterface {
         return ur / 1000 + baseBorrowRate;
     }
 
+    function getSupplyRate(uint cash, uint borrowed, uint reserves) public view returns (uint) {
+        uint borrowRate = getBorrowRate(cash, borrowed, reserves);
+        
+        return utilizationRate(cash, borrowed, reserves) * borrowRate / FACTOR;
+    }
+
     function borrowRatePerBlock() public view returns (uint) {
         return getBorrowRate(getCash(), totalBorrows, 0);
     }
