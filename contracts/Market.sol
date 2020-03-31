@@ -70,6 +70,10 @@ contract Market is MarketInterface {
     function borrowRatePerBlock() public view returns (uint) {
         return getBorrowRate(getCash(), totalBorrows, 0);
     }
+    
+    function supplyRatePerBlock() public view returns (uint) {
+        return getSupplyRate(getCash(), totalBorrows, 0);
+    }
 
     function lendingsBy(address user) public view returns (uint) {
         return lendings[user];

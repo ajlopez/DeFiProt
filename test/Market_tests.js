@@ -58,6 +58,12 @@ contract('Market', function (accounts) {
             assert.equal(borrowRate, 1000);
         });
         
+        it('initial supply rate per block', async function () {
+            const supplyRate = await this.market.supplyRatePerBlock();
+            
+            assert.equal(supplyRate, 0);
+        });
+        
         it('initial accrual block number', async function () {
             const accrualBlockNumber = await this.market.accrualBlockNumber();
             
