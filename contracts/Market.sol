@@ -9,19 +9,24 @@ contract Market is MarketInterface {
     ERC20 public token;
     Controller public controller;
     
-    uint public totalLendings;
+    uint public totalSupply;
 
     uint public accrualBlockNumber;
     uint public borrowIndex;
     uint public totalBorrows;
     uint public baseBorrowRate;
 
+    struct SupplySnapshot {
+        uint supply;
+        uint supplyIndex;
+    }
+        
     struct BorrowSnapshot {
         uint principal;
         uint interestIndex;
     }
-        
-    mapping (address => uint) lendings;
+    
+    mapping (address => SupplySnapshot) supplies;
     mapping (address => BorrowSnapshot) borrows;
     
     uint constant FACTOR = 1e6;
@@ -75,15 +80,15 @@ contract Market is MarketInterface {
         return getSupplyRate(getCash(), totalBorrows, 0);
     }
 
-    function lendingsBy(address user) public view returns (uint) {
-        return lendings[user];
+    function supplyOf(address user) public view returns (uint) {
+        return supplies[user].supply;
     }
     
-    function borrowsBy(address user) public view returns (uint) {
+    function borrowBy(address user) public view returns (uint) {
         return borrows[user].principal;
     }
     
-    function updatedBorrowsBy(address user) public view returns (uint) {
+    function updatedBorrowBy(address user) public view returns (uint) {
         BorrowSnapshot storage snapshot = borrows[user];
         
         if (snapshot.principal == 0)
@@ -105,16 +110,16 @@ contract Market is MarketInterface {
         // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
         accrueInterest();
-        lendings[msg.sender] += amount;
-        totalLendings += amount;
+        supplies[msg.sender].supply += amount;
+        totalSupply += amount;
     }
     
     function redeem(uint amount) public {
-        require(lendings[msg.sender] >= amount);
+        require(supplies[msg.sender].supply >= amount);
         require(token.balanceOf(address(this)) >= amount);
         require(token.transfer(msg.sender, amount), "No enough tokens");
-        lendings[msg.sender] -= amount;
-        totalLendings -= amount;
+        supplies[msg.sender].supply -= amount;
+        totalSupply -= amount;
     }
     
     function borrow(uint amount) public {
@@ -179,7 +184,7 @@ contract Market is MarketInterface {
         
         accrueInterest();
         
-        uint updatedPrincipal = updatedBorrowsBy(msg.sender);
+        uint updatedPrincipal = updatedBorrowBy(msg.sender);
         
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
 
@@ -195,8 +200,8 @@ contract Market is MarketInterface {
         
         totalBorrows -= amount;
         
-        lendings[msg.sender] += additional;
-        totalLendings += additional;
+        supplies[msg.sender].supply += additional;
+        totalSupply += additional;
     }
 }
 
