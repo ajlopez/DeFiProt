@@ -28,57 +28,53 @@ const pages = (function () {
 })();
 
 const config = {
-    "host": "https://public-node.testnet.rsk.co:443",
+    "host": "http://localhost:4444",
     "accounts": {
-        "root": {
-            "privateKey": "0xd093f91cb7ce13874b4a3ef053e0b30e86b289952eb14fdd5f880aa04dcb8798",
-            "publicKey": "0x7b1178a843459c803c7c8a39c78080a68317b3be0e72ddd70dce6169bd62fc48ed690439c3d04f12820346606736250f5f4e65f7020bb2a40f25199c2f4c1a3a",
-            "address": "0xb5b981b5674fea37add3ae8ef21e96dab52a898d"
-        },
+        "root": "0xcd2a3d9f938e13cd947ec05abc7fe734df8dd826",
         "alice": {
-            "privateKey": "0x2d0a0f1a3d7ea7134aa764bd3bd5a25b1579508f8d88065909d2996603b73c4d",
-            "publicKey": "0x5c9c8f6d56525caade626566bf7f5a2d789a0c49b3fb93e88e33314f58529c547c048b33fa119452916927dd0fa912d14a0d10495fd535b7b4cc3d9bad7f019a",
-            "address": "0x1cd91c1272e255ac601359a840708119146b1308"
-        },
-        "charlie": {
-            "privateKey": "0x3e929a849b8a40709881cc4253a66b3f741cfa6b6f3282a511436a15fcd76554",
-            "publicKey": "0x97d558eadd2d316d58b133f310cb4857bff48909ea99a3c0a2226e3fbe4e5288639c5aa96194d60f52888855540ba0247e14f77093825a5bc77bb35b2846ad79",
-            "address": "0x80a8a51d473c61cae66c06168c2a59dfb6503716"
+            "privateKey": "0x2bf93aab141735a82000d35d8bf6f1c4f8a31b7c2e0d219db32c8d21da6e1a94",
+            "publicKey": "0x88c053b0d189752cc31677d68145408b4ef61e6e1646a3ce5b84c3d2de7f02ca262e9d1e8ece5090c655db32dc8b56bc72dae1cde485d366bcc89742cc6c122c",
+            "address": "0xe16cdd58c9c85e02bb17ee245def7108532bf1b8"
         },
         "bob": {
-            "privateKey": "0xcc19a97bb681dce4ea90f7822a7d796b0fadc62751fc37ac42dc0745faf71966",
-            "publicKey": "0x08b65ab5d38b25130218076b6fe17456f78e87b0b0e657d544d9730ed3bcbd17fa27203d58a3c537428562c13971d8d0a68dfe923d164dc8b571d95e86934446",
-            "address": "0x2d2fedbe61c521472455f2d668e706c491eef835"
+            "privateKey": "0x5b470eedae15ea8a3f6cbbf765d2c5fa7e0746f270711d60b9db5912e5ea97ab",
+            "publicKey": "0x779889adc6644cf8eec31ad533c2b146722f89e246954b64a95536607215f9ce4a9bac08b228922017b7fc883823b678e97f018f1b1a68782af2077b5b8f8cbc",
+            "address": "0xd9ac9fa663de2d191813e3906db11f4241751d3c"
+        },
+        "charlie": {
+            "privateKey": "0x7958be6885c639cefc0c0dc8e4f0d1d57c29b0e354406f3adc9eab9a4fcf44b7",
+            "publicKey": "0x7ee1c66dab4908f59abaa1e5237d8769fb57aabbecfd81d46971023395b35c32482f284646188b4b45ca4a7c1966ebf9071acb1c6f0170cccb501ffc60b1ca43",
+            "address": "0xa42e8733778cde598bd2fdf5a09b2100a3194f98"
         }
     },
     "instances": {
         "token1": {
-            "address": "0xd2310f43dddb85c1fab2023b90af5cf5a5bfcf77",
+            "address": "0xe0825f57dd05ef62ff731c27222a86e104cc4cad",
             "contract": "FaucetToken"
         },
         "token2": {
-            "address": "0x16726a6080b2dc52240b07887d21e46fbceedd54",
+            "address": "0x73ec81da0c72dd112e06c09a6ec03b5544d26f05",
             "contract": "FaucetToken"
         },
         "token3": {
-            "address": "0xb21728616bba4e2febc9e79804da000ad637404b",
+            "address": "0x03f23ae1917722d5a27a2ea0bcc98725a2a2a49a",
             "contract": "FaucetToken"
         },
+        "controller": {
+            "address": "0x0e19674ebc2c2b6df3e7a1417c49b50235c61924",
+            "contract": "Controller"
+        },
         "market1": {
-            "address": "0x90c9b88d4f3f0479bc87590ab144c4c57d160433",
+            "address": "0x8901a2bbf639bfd21a97004ba4d7ae2bd00b8da8",
             "contract": "Market"
         },
         "market2": {
-            "address": "0xdd658c463268e4b0fbf97b279ef1ff25b57ca9b8",
+            "address": "0xdac5481925a298b95bf5b54c35b68fc6fc2ef423",
             "contract": "Market"
         },
         "market3": {
-            "address": "0x5659d1d7fb27e735aa06ec82855976c3c99990b5",
+            "address": "0x987c1f13d417f7e04d852b44badc883e4e9782e1",
             "contract": "Market"
-        },
-        "controller": {
-            "address": "0xd484692fbdbbaa38cc3c31d80c0da08b29ed9b2b",
-            "contract": "Controller"
         }
     },
     "options": {}
@@ -204,7 +200,7 @@ var app = (function () {
                     gas: '0x010000',
                     gasPrice: '0x0',
                     value: '0x0',
-                    data: '0x599995d3' + toHex(address)
+                    data: '0xe681dc71' + toHex(address)
                 }, 'latest' ]
             };
                         
@@ -214,7 +210,7 @@ var app = (function () {
                 
                 const value = parseInt(data.result);
                 
-                bfn(accountname, marketname, 'lendings', value);
+                bfn(accountname, marketname, 'supplies', value);
             });
             
             const request2 = {
@@ -227,7 +223,7 @@ var app = (function () {
                     gas: '0x010000',
                     gasPrice: '0x0',
                     value: '0x0',
-                    data: '0xb825ffd6' + toHex(address)
+                    data: '0x2aad6aa8' + toHex(address)
                 }, 'latest' ]
             };
                         
@@ -297,7 +293,7 @@ var app = (function () {
                     gas: '0x010000',
                     gasPrice: '0x0',
                     value: '0x0',
-                    data: '0x4ce7610b'
+                    data: '0xc2b170cb'
                 }, 'latest' ]
             };
                         
@@ -307,7 +303,7 @@ var app = (function () {
                 
                 const value = parseInt(data.result);
                 
-                bfn(marketname, 'lendings', value);
+                bfn(marketname, 'supplies', value);
             });
             
             const request2 = {
