@@ -10,15 +10,18 @@ contract Market is MarketInterface {
     Controller public controller;
     
     uint public totalSupply;
+    
+    uint public supplyIndex;
 
     uint public accrualBlockNumber;
+    
     uint public borrowIndex;
     uint public totalBorrows;
     uint public baseBorrowRate;
 
     struct SupplySnapshot {
         uint supply;
-        uint supplyIndex;
+        uint interestIndex;
     }
         
     struct BorrowSnapshot {
@@ -35,6 +38,7 @@ contract Market is MarketInterface {
         owner = msg.sender;
         token = _token;
         borrowIndex = FACTOR;
+        supplyIndex = FACTOR;
         baseBorrowRate = _baseBorrowRate;
         accrualBlockNumber = block.number;
     }
@@ -110,20 +114,29 @@ contract Market is MarketInterface {
         // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
         accrueInterest();
+        
         supplies[msg.sender].supply += amount;
+        supplies[msg.sender].interestIndex = supplyIndex;
+        
         totalSupply += amount;
     }
     
     function redeem(uint amount) public {
-        require(supplies[msg.sender].supply >= amount);
         require(token.balanceOf(address(this)) >= amount);
+
+        // TODO accrue interest
+        require(supplies[msg.sender].supply >= amount);
         require(token.transfer(msg.sender, amount), "No enough tokens");
+        
         supplies[msg.sender].supply -= amount;
+        supplies[msg.sender].interestIndex = supplyIndex;
+        
         totalSupply -= amount;
     }
     
     function borrow(uint amount) public {
         require(token.balanceOf(address(this)) >= amount);
+        
         accrueInterest();
         
         BorrowSnapshot storage borrowSnapshot = borrows[msg.sender];

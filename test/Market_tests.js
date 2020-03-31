@@ -39,7 +39,13 @@ contract('Market', function (accounts) {
             
             assert.equal(cash, 0);
         });
-        
+
+        it('initial supply index', async function () {
+            const supplyIndex = await this.market.supplyIndex();
+            
+            assert.equal(supplyIndex, FACTOR);
+        });
+                
         it('initial borrow index', async function () {
             const borrowIndex = await this.market.borrowIndex();
             
