@@ -9,6 +9,7 @@ Experimental DeFi protocol to deposits and borrows assets
 - [Compound Governance](https://medium.com/compound-finance/compound-governance-5531f524cf68)
 - [Compound Finance — A Liquidating Opportunity](https://medium.com/coinmonks/compound-finance-a-liquidating-opportunity-d4e8b7ed7982)
 - [CTokens](https://compound.finance/ctokens)
+- [How Decentralized is DeFi? A Framework for Classifying Lending Protocols](https://hackernoon.com/how-decentralized-is-defi-a-framework-for-classifying-lending-protocols-90981f2c007f)
 
 ## LICENSE
 
