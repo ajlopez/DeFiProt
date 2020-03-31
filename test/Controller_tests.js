@@ -108,14 +108,14 @@ contract('Controller', function (accounts) {
             assert.equal(result, 0);
             
             await this.token.approve(this.market.address, 100, { from: alice });
-            await this.market.mint(100, { from: alice });
+            await this.market.supply(100, { from: alice });
             
             const result2 = await this.controller.getAccountLiquidity(alice);
             
             assert.equal(result2, 100 * 10);
             
             await this.token2.approve(this.market2.address, 100, { from: alice });
-            await this.market2.mint(100, { from: alice });
+            await this.market2.supply(100, { from: alice });
             
             const result3 = await this.controller.getAccountLiquidity(alice);
             
@@ -128,10 +128,10 @@ contract('Controller', function (accounts) {
             assert.equal(result, 0);
             
             await this.token.approve(this.market.address, 100, { from: alice });
-            await this.market.mint(100, { from: alice });
+            await this.market.supply(100, { from: alice });
             
             await this.token2.approve(this.market2.address, 1000, { from: bob });
-            await this.market2.mint(1000, { from: bob });
+            await this.market2.supply(1000, { from: bob });
             
             const result2 = await this.controller.getAccountLiquidity(alice);
             

@@ -106,7 +106,7 @@ contract('Market', function (accounts) {
         
         it('mint amount', async function () {
             await this.token.approve(this.market.address, 1000, { from: alice });
-            await this.market.mint(1000, { from: alice });
+            await this.market.supply(1000, { from: alice });
             
             const aliceMarketSupply = await this.market.supplyOf(alice);
             const bobMarketSupply = await this.market.supplyOf(bob);
@@ -133,7 +133,7 @@ contract('Market', function (accounts) {
         
         it('cannot mint amount without enough tokens', async function () {
             await this.token.approve(this.market.address, 500, { from: alice });
-            expectThrow(this.market.mint(1000, { from: alice }));
+            expectThrow(this.market.supply(1000, { from: alice }));
             
             const aliceMarketSupply = await this.market.supplyOf(alice);
             const bobMarketSupply = await this.market.supplyOf(bob);
@@ -156,7 +156,7 @@ contract('Market', function (accounts) {
         
         it('redeem amount', async function () {
             await this.token.approve(this.market.address, 1000, { from: alice });
-            await this.market.mint(1000, { from: alice });
+            await this.market.supply(1000, { from: alice });
             
             const tokenAliceBalance = await this.token.balanceOf(alice);
             const aliceMarketSupply = await this.market.supplyOf(alice);
@@ -195,7 +195,7 @@ contract('Market', function (accounts) {
         
         it('cannot redeem amount without enough supply', async function () {
             await this.token.approve(this.market.address, 1000, { from: alice });
-            await this.market.mint(1000, { from: alice });
+            await this.market.supply(1000, { from: alice });
             await this.token.transfer(bob, 1000);
 
             const tokenAliceBalance = await this.token.balanceOf(alice);
@@ -205,7 +205,7 @@ contract('Market', function (accounts) {
             assert.equal(tokenBobBalance, 1000);
             
             await this.token.approve(this.market.address, 1000, { from: bob });
-            await this.market.mint(1000, { from: bob });
+            await this.market.supply(1000, { from: bob });
             
             const aliceMarketSupply = await this.market.supplyOf(alice);
             const bobMarketSupply = await this.market.supplyOf(bob);
@@ -287,9 +287,9 @@ contract('Market', function (accounts) {
             await this.controller.setCollateralFactor(2000000);
 
             await this.token.approve(this.market.address, 2000, { from: alice });
-            await this.market.mint(2000, { from: alice });
+            await this.market.supply(2000, { from: alice });
             await this.token2.approve(this.market2.address, 4000, { from: bob });
-            await this.market2.mint(4000, { from: bob });
+            await this.market2.supply(4000, { from: bob });
             
             creationBlock = (await this.market.accrualBlockNumber()).toNumber();
             creationBlock2 = (await this.market2.accrualBlockNumber()).toNumber();
@@ -448,9 +448,9 @@ contract('Market', function (accounts) {
             await this.controller.setCollateralFactor(2000000);
 
             await this.token.approve(this.market.address, 2000, { from: alice });
-            await this.market.mint(2000, { from: alice });
+            await this.market.supply(2000, { from: alice });
             await this.token2.approve(this.market2.address, 4000, { from: bob });
-            await this.market2.mint(4000, { from: bob });
+            await this.market2.supply(4000, { from: bob });
             
             creationBlock = (await this.market.accrualBlockNumber()).toNumber();
             creationBlock2 = (await this.market2.accrualBlockNumber()).toNumber();

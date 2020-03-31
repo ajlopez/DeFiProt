@@ -124,7 +124,7 @@ contract Market is MarketInterface {
         controller = _controller;
     }
     
-    function mint(uint amount) public {
+    function supply(uint amount) public {
         // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
 
