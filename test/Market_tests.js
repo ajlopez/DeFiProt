@@ -349,8 +349,13 @@ contract('Market', function (accounts) {
             const borrowIndex = (await this.market.borrowIndex()).toNumber();
             const borrowRate = (await this.market.borrowRatePerBlock()).toNumber();
             const totalBorrows = (await this.market.totalBorrows()).toNumber();
+
+            const supplyIndex = (await this.market.supplyIndex()).toNumber();
+            const supplyRate = (await this.market.supplyRatePerBlock()).toNumber();
+            const totalSupply = (await this.market.totalSupply()).toNumber();
             
             assert.equal(totalBorrows, 1000);
+            assert.equal(totalSupply, 2000);
             
             const borrowed = await this.market.borrowBy(bob);
             
@@ -374,18 +379,34 @@ contract('Market', function (accounts) {
             const updatedTotalBorrows = (await this.market.getUpdatedTotalBorrows()).toNumber();
             const updatedBobBorrows = (await this.market.updatedBorrowBy(bob)).toNumber();
             
+            const newTotalSupply = (await this.market.totalSupply()).toNumber();
+            const updatedTotalSupply = (await this.market.getUpdatedTotalSupply()).toNumber();
+            const updatedAliceSupply = (await this.market.updatedSupplyOf(alice)).toNumber();
+
             assert.ok(newTotalBorrows > totalBorrows);
             assert.ok(updatedTotalBorrows > totalBorrows);
             assert.ok(updatedBobBorrows > totalBorrows);
             
+            assert.ok(newTotalSupply > totalSupply);
+            assert.ok(updatedTotalSupply > totalSupply);
+            assert.ok(updatedAliceSupply > totalSupply);
+
             const newBorrowIndex = (await this.market.borrowIndex()).toNumber();
+            const newSupplyIndex = (await this.market.supplyIndex()).toNumber();
 
             console.log('borrow index', borrowIndex);
             console.log('borrow index after accrue interest', newBorrowIndex);
             console.log('total borrows', totalBorrows);
             console.log('total borrows after accrue interest', newTotalBorrows);
             
+            console.log('supply index', supplyIndex);
+            console.log('supply index after accrue interest', newSupplyIndex);
+            
+            console.log('updated bob borrows', updatedBobBorrows);
+            console.log('updated alice supply', updatedAliceSupply);
+            
             assert.ok(newBorrowIndex > borrowIndex);
+            assert.ok(newSupplyIndex > supplyIndex);
             
             const blockDelta = newAccrualBlockNumber - accrualBlockNumber;
             const simpleInterestFactor = borrowRate * blockDelta;

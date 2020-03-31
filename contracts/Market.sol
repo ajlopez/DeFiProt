@@ -106,6 +106,20 @@ contract Market is MarketInterface {
         return snapshot.principal * newBorrowIndex / snapshot.interestIndex;
     }
     
+    function updatedSupplyOf(address user) public view returns (uint) {
+        SupplySnapshot storage snapshot = supplies[user];
+        
+        if (snapshot.supply == 0)
+            return 0;
+        
+        uint newTotalSupply;
+        uint newSupplyIndex;
+        
+        (newTotalSupply, newSupplyIndex) = calculateSupplyDataAtBlock(block.number);
+        
+        return snapshot.supply * newSupplyIndex / snapshot.interestIndex;
+    }
+    
     function setController(Controller _controller) public onlyOwner {
         controller = _controller;
     }
@@ -113,6 +127,7 @@ contract Market is MarketInterface {
     function mint(uint amount) public {
         // TODO check msg.sender != this
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+
         accrueInterest();
         
         supplies[msg.sender].supply += amount;
@@ -124,12 +139,23 @@ contract Market is MarketInterface {
     function redeem(uint amount) public {
         require(token.balanceOf(address(this)) >= amount);
 
-        // TODO accrue interest
-        require(supplies[msg.sender].supply >= amount);
+        accrueInterest();
+
+        SupplySnapshot storage supplySnapshot = supplies[msg.sender];
+        
+        if (supplySnapshot.supply > 0) {
+            uint interest = supplySnapshot.supply * supplyIndex / supplySnapshot.interestIndex - supplySnapshot.supply;
+            
+            supplySnapshot.supply += interest;
+            supplySnapshot.interestIndex = supplyIndex;
+        }
+
+        require(supplySnapshot.supply >= amount);
+        
         require(token.transfer(msg.sender, amount), "No enough tokens");
         
-        supplies[msg.sender].supply -= amount;
-        supplies[msg.sender].interestIndex = supplyIndex;
+        supplySnapshot.supply -= amount;
+        supplySnapshot.interestIndex = supplyIndex;
         
         totalSupply -= amount;
     }
@@ -162,6 +188,8 @@ contract Market is MarketInterface {
         uint currentBlockNumber = block.number;
         
         (totalBorrows, borrowIndex) = calculateBorrowDataAtBlock(currentBlockNumber);
+        (totalSupply, supplyIndex) = calculateSupplyDataAtBlock(currentBlockNumber);
+        
         accrualBlockNumber = currentBlockNumber;
     }
     
@@ -181,6 +209,22 @@ contract Market is MarketInterface {
         newTotalBorrows = interestAccumulated + totalBorrows;
     }
     
+    function calculateSupplyDataAtBlock(uint newBlockNumber) internal view returns (uint newTotalSupply, uint newSupplyIndex) {
+        if (newBlockNumber <= accrualBlockNumber)
+            return (totalSupply, supplyIndex);
+            
+        if (totalSupply == 0)
+            return (totalSupply, supplyIndex);
+        
+        uint blockDelta = newBlockNumber - accrualBlockNumber;
+        
+        uint simpleInterestFactor = blockDelta * supplyRatePerBlock();
+        uint interestAccumulated = simpleInterestFactor * totalSupply / FACTOR;
+        
+        newSupplyIndex = simpleInterestFactor * supplyIndex / FACTOR + supplyIndex;        
+        newTotalSupply = interestAccumulated + totalSupply;        
+    }
+    
     function getUpdatedTotalBorrows() public view returns (uint) {
         uint newTotalBorrows;
         uint newBorrowIndex;
@@ -188,6 +232,15 @@ contract Market is MarketInterface {
         (newTotalBorrows, newBorrowIndex) = calculateBorrowDataAtBlock(block.number);
         
         return newTotalBorrows;
+    }
+    
+    function getUpdatedTotalSupply() public view returns (uint) {
+        uint newTotalSupply;
+        uint newSupplyIndex;
+        
+        (newTotalSupply, newSupplyIndex) = calculateSupplyDataAtBlock(block.number);
+        
+        return newTotalSupply;
     }
     
     function payBorrow(uint amount) public {
