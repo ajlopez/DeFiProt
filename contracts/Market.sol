@@ -244,30 +244,33 @@ contract Market is MarketInterface {
     }
     
     function payBorrow(uint amount) public {
+        accrueInterest();
+
         BorrowSnapshot storage snapshot = borrows[msg.sender];
         
         require(snapshot.principal > 0);
         
-        accrueInterest();
+        uint interest = snapshot.principal * borrowIndex / snapshot.interestIndex - snapshot.principal;
         
-        uint updatedPrincipal = updatedBorrowBy(msg.sender);
+        snapshot.principal += interest;
+        snapshot.interestIndex = borrowIndex;
         
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
 
         uint additional;
         
-        if (updatedPrincipal < amount) {
-            additional = amount - updatedPrincipal;
-            amount = updatedPrincipal;
+        if (snapshot.principal < amount) {
+            additional = amount - snapshot.principal;
+            amount = snapshot.principal;
         }
         
-        snapshot.principal = updatedPrincipal - amount;
-        snapshot.interestIndex = borrowIndex;
-        
+        snapshot.principal -= amount;        
         totalBorrows -= amount;
         
-        supplies[msg.sender].supply += additional;
-        totalSupply += additional;
+        if (additional > 0) {
+            supplies[msg.sender].supply += additional;
+            totalSupply += additional;
+        }
     }
 }
 
