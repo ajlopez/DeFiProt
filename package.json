@@ -4,6 +4,7 @@
   "description": "DeFi Protocol",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "test": "truffle test",
     "compile": "truffle compile"
   },
@@ -13,6 +14,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "minimist": "^1.2.5",
     "truffle": "5.1.14"
+  },
+  "resolutions": {
+    "minimist": "^1.2.5"
   }
 }
