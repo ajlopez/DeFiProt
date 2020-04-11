@@ -244,9 +244,13 @@ contract Market is MarketInterface {
     }
     
     function payBorrow(uint amount) public {
+        payBorrowInternal(msg.sender, msg.sender, amount);
+    }
+    
+    function payBorrowInternal(address payer, address borrower, uint amount) internal {
         accrueInterest();
 
-        BorrowSnapshot storage snapshot = borrows[msg.sender];
+        BorrowSnapshot storage snapshot = borrows[borrower];
         
         require(snapshot.principal > 0);
         
@@ -255,7 +259,7 @@ contract Market is MarketInterface {
         snapshot.principal += interest;
         snapshot.interestIndex = borrowIndex;
         
-        require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+        require(token.transferFrom(payer, address(this), amount), "No enough tokens");
 
         uint additional;
         
@@ -268,7 +272,8 @@ contract Market is MarketInterface {
         totalBorrows -= amount;
         
         if (additional > 0) {
-            supplies[msg.sender].supply += additional;
+            // TODO if payer != borrower update payer supply data
+            supplies[payer].supply += additional;
             totalSupply += additional;
         }
     }
