@@ -266,8 +266,6 @@ contract Market is MarketInterface {
         snapshot.principal += interest;
         snapshot.interestIndex = borrowIndex;
         
-        require(token.transferFrom(payer, address(this), amount), "No enough tokens");
-
         uint additional;
         
         if (snapshot.principal < amount) {
@@ -275,14 +273,13 @@ contract Market is MarketInterface {
             amount = snapshot.principal;
         }
         
+        require(token.transferFrom(payer, address(this), amount), "No enough tokens");
+
         snapshot.principal -= amount;        
         totalBorrows -= amount;
         
-        if (additional > 0) {
-            // TODO if payer != borrower update payer supply data
-            supplies[payer].supply += additional;
-            totalSupply += additional;
-        }
+        if (additional > 0)
+            supplyInternal(payer, additional);
     }
 }
 
