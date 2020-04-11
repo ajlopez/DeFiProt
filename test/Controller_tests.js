@@ -9,6 +9,8 @@ contract('Controller', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
     const charlie = accounts[2];
+    
+    const MANTISSA = 1000000;
 
     describe('one token and one market', function () {
         beforeEach(async function() {
@@ -102,7 +104,7 @@ contract('Controller', function (accounts) {
             await this.controller.setCollateralFactor(2000000);
         });
         
-        it('account liquidity using lendings', async function () {
+        it('account liquidity using supply', async function () {
             const result = await this.controller.getAccountLiquidity(alice);
             
             assert.equal(result, 0);
@@ -122,7 +124,7 @@ contract('Controller', function (accounts) {
             assert.equal(result3, 100 * 10 + 100 * 20);
         });
         
-        it('account liquidity using lendings and borrows', async function () {
+        it('account liquidity using supply and borrows', async function () {
             const result = await this.controller.getAccountLiquidity(alice);
             
             assert.equal(result, 0);
@@ -144,6 +146,31 @@ contract('Controller', function (accounts) {
             assert.equal(result3, 100 * 10 - 10 * 20 * 2);
         });
 
+        it('initial account values', async function () {
+            const result = await this.controller.getAccountValues(alice);
+
+            assert.equal(result.supplyValue, 0);
+            assert.equal(result.borrowValue, 0);
+            assert.equal(result.collFactor, 2000000);
+            assert.equal(result.mantissa, MANTISSA);
+        });
+        
+        it('account values using supply and borrows', async function () {
+            await this.token.approve(this.market.address, 100, { from: alice });
+            await this.market.supply(100, { from: alice });
+            
+            await this.token2.approve(this.market2.address, 1000, { from: bob });
+            await this.market2.supply(1000, { from: bob });
+
+            await this.market2.borrow(10, { from: alice });
+            
+            const result = await this.controller.getAccountValues(alice);
+
+            assert.equal(result.supplyValue, 100 * 10);
+            assert.equal(result.borrowValue, 10 * 20);
+            assert.equal(result.collFactor, 2000000);
+            assert.equal(result.mantissa, MANTISSA);
+        });
     });
 });
 

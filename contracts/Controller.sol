@@ -48,11 +48,23 @@ contract Controller {
         for (uint k = 0; k < marketList.length; k++) {
             MarketInterface market = MarketInterface(marketList[k]);
             uint price = prices[marketList[k]];
-            liquidity += market.supplyOf(account) * price;
-            liquidity -= market.borrowBy(account) * collateralFactor / MANTISSA * price;
+            liquidity += market.updatedSupplyOf(account) * price;
+            liquidity -= market.updatedBorrowBy(account) * collateralFactor / MANTISSA * price;
         }
         
         return liquidity;
+    }
+    
+    function getAccountValues(address account) public view returns (uint supplyValue, uint borrowValue, uint collFactor, uint mantissa) {
+        for (uint k = 0; k < marketList.length; k++) {
+            MarketInterface market = MarketInterface(marketList[k]);
+            uint price = prices[marketList[k]];
+            supplyValue += market.updatedSupplyOf(account) * price;
+            borrowValue += market.updatedBorrowBy(account) * price;
+        }
+        
+        collFactor = collateralFactor;
+        mantissa = MANTISSA;
     }
 }
 
