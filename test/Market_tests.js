@@ -507,6 +507,10 @@ contract('Market', function (accounts) {
             const cash = await this.market.getCash();
             
             assert.equal(cash, 3000);
+
+            const totalSupply = await this.market.totalSupply();
+            
+            assert.equal(totalSupply, 3000);
         });        
     });
 });
