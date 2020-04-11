@@ -125,13 +125,20 @@ contract Market is MarketInterface {
     }
     
     function supply(uint amount) public {
+        supplyInternal(msg.sender, amount);
+    }
+    
+    function supplyInternal(address supplier, uint amount) internal {
         // TODO check msg.sender != this
-        require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+        require(token.transferFrom(supplier, address(this), amount), "No enough tokens");
 
         accrueInterest();
+
+        SupplySnapshot storage supplySnapshot = supplies[supplier];
         
-        supplies[msg.sender].supply += amount;
-        supplies[msg.sender].interestIndex = supplyIndex;
+        supplySnapshot.supply = updatedSupplyOf(supplier);
+        supplies[supplier].supply += amount;
+        supplies[supplier].interestIndex = supplyIndex;
         
         totalSupply += amount;
     }
