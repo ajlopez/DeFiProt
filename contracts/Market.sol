@@ -164,6 +164,13 @@ contract Market is MarketInterface {
         supplySnapshot.supply -= amount;
         
         totalSupply -= amount;
+        
+        uint supplierSupplyValue;
+        uint supplierBorrowValue;
+        
+        (supplierSupplyValue, supplierBorrowValue) = controller.getAccountValues(supplier);
+        
+        require(supplierSupplyValue >= supplierBorrowValue * controller.collateralFactor() / controller.MANTISSA());
     }
     
     function borrow(uint amount) public {

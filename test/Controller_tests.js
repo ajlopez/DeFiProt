@@ -150,6 +150,7 @@ contract('Controller', function (accounts) {
             await this.controller.setPrice(this.market2.address, 20);
             
             await this.controller.setCollateralFactor(2000000);
+            await this.controller.setLiquidationFactor(1500000);
         });
         
         it('account liquidity using supply', async function () {

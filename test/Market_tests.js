@@ -17,7 +17,15 @@ contract('Market', function (accounts) {
             this.market = await Market.new(this.token.address, 1000);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
             this.market2 = await Market.new(this.token2.address, 1000);
+            
             this.controller = await Controller.new();
+            await this.controller.setCollateralFactor(2000000);
+            await this.controller.setLiquidationFactor(1500000);
+
+            await this.controller.addMarket(this.market.address);
+            await this.controller.addMarket(this.market2.address);
+            await this.controller.setPrice(this.market.address, 1);
+            await this.controller.setPrice(this.market2.address, 2);
         });
         
         it('initial supply are zero', async function () {
@@ -155,6 +163,9 @@ contract('Market', function (accounts) {
         });
         
         it('redeem amount', async function () {
+            await this.market.setController(this.controller.address);
+            await this.market2.setController(this.controller.address);
+            
             await this.token.approve(this.market.address, 1000, { from: alice });
             await this.market.supply(1000, { from: alice });
             
@@ -191,57 +202,6 @@ contract('Market', function (accounts) {
             const cash = await this.market.getCash();
             
             assert.equal(cash, 500);
-        });
-        
-        it('cannot redeem amount without enough supply', async function () {
-            await this.token.approve(this.market.address, 1000, { from: alice });
-            await this.market.supply(1000, { from: alice });
-            await this.token.transfer(bob, 1000);
-
-            const tokenAliceBalance = await this.token.balanceOf(alice);
-            assert.equal(tokenAliceBalance, 1000000 - 2000);
-
-            const tokenBobBalance = await this.token.balanceOf(bob);
-            assert.equal(tokenBobBalance, 1000);
-            
-            await this.token.approve(this.market.address, 1000, { from: bob });
-            await this.market.supply(1000, { from: bob });
-            
-            const aliceMarketSupply = await this.market.supplyOf(alice);
-            const bobMarketSupply = await this.market.supplyOf(bob);
-            
-            assert.equal(aliceMarketSupply, 1000);
-            assert.equal(bobMarketSupply, 1000);
-            
-            const marketBalance = await this.token.balanceOf(this.market.address);
-            
-            assert.equal(marketBalance, 2000);
-            
-            const cash = await this.market.getCash();
-            
-            assert.equal(cash, 2000);
-                    
-            const totalSupply = await this.market.totalSupply();
-            
-            assert.equal(totalSupply, 2000);
-            
-            expectThrow(this.market.redeem(1500, { from: alice }));
-                    
-            const newTokenAliceBalance = await this.token.balanceOf(alice);
-            const newAliceMarketSupply = await this.market.supplyOf(alice);
-            const newBobMarketSupply = await this.market.supplyOf(bob);
-            
-            assert.equal(newTokenAliceBalance, 1000000 - 2000);
-            assert.equal(newAliceMarketSupply, 1000);
-            assert.equal(newBobMarketSupply, 1000);
-            
-            const newMarketBalance = await this.token.balanceOf(this.market.address);
-            
-            assert.equal(newMarketBalance, 2000);
-            
-            const newTotalSupply = await this.market.totalSupply();
-            
-            assert.equal(newTotalSupply, 2000);
         });
         
         it('no controller', async function () {
@@ -285,6 +245,7 @@ contract('Market', function (accounts) {
             await this.controller.setPrice(this.market.address, 1);
             await this.controller.setPrice(this.market2.address, 2);
             await this.controller.setCollateralFactor(2000000);
+            await this.controller.setLiquidationFactor(1500000);
 
             await this.token.approve(this.market.address, 2000, { from: alice });
             await this.market.supply(2000, { from: alice });
@@ -294,6 +255,25 @@ contract('Market', function (accounts) {
             creationBlock = (await this.market.accrualBlockNumber()).toNumber();
             creationBlock2 = (await this.market2.accrualBlockNumber()).toNumber();
         });
+        
+        it('cannot redeem amount without enough liquidity', async function () {
+            await this.market2.borrow(1, { from: alice });
+            
+            const aliceSupply = await this.market.supplyOf(alice);
+            
+            assert.equal(aliceSupply, 2000);
+            
+            await this.controller.setPrice(this.market.address, 0);
+            
+            expectThrow(this.market.redeem(1500, { from: alice }));
+                    
+            const newTokenAliceBalance = await this.token.balanceOf(alice);
+            const newAliceMarketSupply = await this.market.supplyOf(alice);
+            
+            assert.equal(newTokenAliceBalance, 1000000 - 2000);
+            assert.equal(newAliceMarketSupply, 2000);
+        });
+        
         
         it('borrow from market using other market as collateral', async function () {
             await this.market.borrow(1000, { from: bob });
@@ -446,6 +426,7 @@ contract('Market', function (accounts) {
             await this.controller.setPrice(this.market.address, 1);
             await this.controller.setPrice(this.market2.address, 2);
             await this.controller.setCollateralFactor(2000000);
+            await this.controller.setLiquidationFactor(1500000);
 
             await this.token.approve(this.market.address, 2000, { from: alice });
             await this.market.supply(2000, { from: alice });
