@@ -9,9 +9,8 @@ contract Controller {
     mapping (address => uint) public prices;
     address[] public marketList;
     
-    uint public collateralFactor;
-    
-    uint constant MANTISSA = 1e6;
+    uint public collateralFactor;    
+    uint public constant MANTISSA = 1e6;
     
     constructor() public {
         owner = msg.sender;
@@ -45,26 +44,27 @@ contract Controller {
     function getAccountLiquidity(address account) public view returns (uint) {
         uint liquidity = 0;
         
-        for (uint k = 0; k < marketList.length; k++) {
-            MarketInterface market = MarketInterface(marketList[k]);
-            uint price = prices[marketList[k]];
-            liquidity += market.updatedSupplyOf(account) * price;
-            liquidity -= market.updatedBorrowBy(account) * collateralFactor / MANTISSA * price;
-        }
+        uint supplyValue;
+        uint borrowValue;
         
+        (supplyValue, borrowValue) = getAccountValues(account);
+        
+        borrowValue *= collateralFactor;
+        borrowValue /= MANTISSA;
+        
+        if (borrowValue < supplyValue)
+            liquidity = supplyValue - borrowValue;
+
         return liquidity;
     }
     
-    function getAccountValues(address account) public view returns (uint supplyValue, uint borrowValue, uint collFactor, uint mantissa) {
+    function getAccountValues(address account) public view returns (uint supplyValue, uint borrowValue) {
         for (uint k = 0; k < marketList.length; k++) {
             MarketInterface market = MarketInterface(marketList[k]);
             uint price = prices[marketList[k]];
             supplyValue += market.updatedSupplyOf(account) * price;
             borrowValue += market.updatedBorrowBy(account) * price;
         }
-        
-        collFactor = collateralFactor;
-        mantissa = MANTISSA;
     }
 }
 

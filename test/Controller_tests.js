@@ -146,13 +146,27 @@ contract('Controller', function (accounts) {
             assert.equal(result3, 100 * 10 - 10 * 20 * 2);
         });
 
+        it('account liquidity as zero when supply value is less than borrow value scaled by collateral factor', async function () {
+            await this.token.approve(this.market.address, 100, { from: alice });
+            await this.market.supply(100, { from: alice });
+            
+            await this.token2.approve(this.market2.address, 1000, { from: bob });
+            await this.market2.supply(1000, { from: bob });
+            
+            await this.market2.borrow(10, { from: alice });
+            
+            await this.controller.setPrice(this.market.address, 0);
+            
+            const result = await this.controller.getAccountLiquidity(alice);
+            
+            assert.equal(result, 0);
+        });
+
         it('initial account values', async function () {
             const result = await this.controller.getAccountValues(alice);
 
             assert.equal(result.supplyValue, 0);
             assert.equal(result.borrowValue, 0);
-            assert.equal(result.collFactor, 2000000);
-            assert.equal(result.mantissa, MANTISSA);
         });
         
         it('account values using supply and borrows', async function () {
@@ -168,8 +182,6 @@ contract('Controller', function (accounts) {
 
             assert.equal(result.supplyValue, 100 * 10);
             assert.equal(result.borrowValue, 10 * 20);
-            assert.equal(result.collFactor, 2000000);
-            assert.equal(result.mantissa, MANTISSA);
         });
     });
 });
