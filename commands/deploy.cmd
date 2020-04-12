@@ -1,6 +1,7 @@
 node deploy root controller Controller
 
 node invoke root controller setCollateralFactor(uint256) 2000000 fast
+node invoke root controller setLiquidationFactor(uint256) 1500000 fast
 
 node deploy root market1 Market token1;1000
 node invoke root controller addMarket(address) market1 fast
