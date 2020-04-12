@@ -9,7 +9,8 @@ contract Controller {
     mapping (address => uint) public prices;
     address[] public marketList;
     
-    uint public collateralFactor;    
+    uint public collateralFactor;
+    uint public liquidationFactor;
     uint public constant MANTISSA = 1e6;
     
     constructor() public {
@@ -28,6 +29,10 @@ contract Controller {
     
     function setCollateralFactor(uint factor) public onlyOwner {
         collateralFactor = factor;
+    }
+    
+    function setLiquidationFactor(uint factor) public onlyOwner {
+        liquidationFactor = factor;
     }
     
     function setPrice(address market, uint price) public onlyOwner {

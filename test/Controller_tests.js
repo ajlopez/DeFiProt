@@ -19,6 +19,10 @@ contract('Controller', function (accounts) {
             this.controller = await Controller.new();
         });
         
+        it('mantissa', async function () {
+            assert.equal(await this.controller.MANTISSA(), MANTISSA);
+        });
+        
         it('no market', async function () {
             const result = await this.controller.markets(this.market.address);
             
@@ -49,6 +53,50 @@ contract('Controller', function (accounts) {
             const result = await this.controller.markets(this.market.address);
             
             assert.ok(!result);
+        });
+        
+        it('initial collateral factor', async function () {
+            const factor = await this.controller.collateralFactor();
+            
+            assert.equal(factor, 0);
+        });
+        
+        it('set collateral factor', async function () {
+            await this.controller.setCollateralFactor(2000000);
+            
+            const factor = await this.controller.collateralFactor();
+            
+            assert.equal(factor, 2000000);
+        });
+        
+        it('only owner can set collateral factor', async function () {
+            expectThrow(this.controller.setCollateralFactor(2000000, { from: bob }));
+            
+            const factor = await this.controller.collateralFactor();
+            
+            assert.equal(factor, 0);
+        });
+        
+        it('initial liquidation factor', async function () {
+            const factor = await this.controller.liquidationFactor();
+            
+            assert.equal(factor, 0);
+        });
+        
+        it('set liquidation factor', async function () {
+            await this.controller.setLiquidationFactor(2000000);
+            
+            const factor = await this.controller.liquidationFactor();
+            
+            assert.equal(factor, 2000000);
+        });
+        
+        it('only owner can set liquidation factor', async function () {
+            expectThrow(this.controller.setLiquidationFactor(2000000, { from: bob }));
+            
+            const factor = await this.controller.liquidationFactor();
+            
+            assert.equal(factor, 0);
         });
         
         it('set asset price', async function () {
