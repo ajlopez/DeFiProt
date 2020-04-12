@@ -172,9 +172,9 @@ contract('Market', function (accounts) {
             
             await this.market.redeem(500, { from: alice });
                     
-            const newTokenAliceBalance = await this.token.balanceOf(alice);
-            const newAliceMarketSupply = await this.market.supplyOf(alice);
-            const newBobMarketSupply = await this.market.supplyOf(bob);
+            const newTokenAliceBalance = (await this.token.balanceOf(alice)).toNumber();
+            const newAliceMarketSupply = (await this.market.supplyOf(alice)).toNumber();
+            const newBobMarketSupply = (await this.market.supplyOf(bob)).toNumber();
             
             assert.equal(newTokenAliceBalance, 1000000 - 500);
             assert.equal(newAliceMarketSupply, 500);

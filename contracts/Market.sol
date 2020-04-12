@@ -144,25 +144,24 @@ contract Market is MarketInterface {
     }
     
     function redeem(uint amount) public {
+        redeemInternal(msg.sender, amount);
+    }
+    
+    function redeemInternal(address supplier, uint amount) internal {
         require(token.balanceOf(address(this)) >= amount);
 
         accrueInterest();
 
-        SupplySnapshot storage supplySnapshot = supplies[msg.sender];
-        
-        if (supplySnapshot.supply > 0) {
-            uint interest = supplySnapshot.supply * supplyIndex / supplySnapshot.interestIndex - supplySnapshot.supply;
-            
-            supplySnapshot.supply += interest;
-            supplySnapshot.interestIndex = supplyIndex;
-        }
+        SupplySnapshot storage supplySnapshot = supplies[supplier];
 
+        supplySnapshot.supply = updatedSupplyOf(supplier);
+        supplies[supplier].interestIndex = supplyIndex;
+        
         require(supplySnapshot.supply >= amount);
         
-        require(token.transfer(msg.sender, amount), "No enough tokens");
+        require(token.transfer(supplier, amount), "No enough tokens");
         
         supplySnapshot.supply -= amount;
-        supplySnapshot.interestIndex = supplyIndex;
         
         totalSupply -= amount;
     }
