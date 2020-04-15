@@ -13,6 +13,18 @@ Experimental DeFi protocol to deposits and borrows assets
 - [Math in Solidity (Part 5: Exponent and Logarithm)](https://medium.com/coinmonks/math-in-solidity-part-5-exponent-and-logarithm-9aef8515136e)
 - [Fixing security vulnerabilities in npm dependencies in less than 3 mins](https://itnext.io/fixing-security-vulnerabilities-in-npm-dependencies-in-less-than-3-mins-a53af735261d)
 
+## To Do
+
+- Borrow liquidation operation
+- Add SafeMath operations
+- Add annual rates, no of blocks per year, then calculate the block rates
+- Price market provider, in Controller
+- Increase Market MANTISSA (maybe 1e18)
+- Emit events in public operations
+- Deploy scripts for other platforms
+- Compile and test documentation
+- Deploy documentation
+
 ## LICENSE
 
 MIT
