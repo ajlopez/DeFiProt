@@ -11,11 +11,12 @@ contract('Controller', function (accounts) {
     const charlie = accounts[2];
     
     const MANTISSA = 1000000;
+    const FACTOR = 1000000000000000000;
 
     describe('one token and one market', function () {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, 1000);
+            this.market = await Market.new(this.token.address, FACTOR / 1000);
             this.controller = await Controller.new();
         });
         

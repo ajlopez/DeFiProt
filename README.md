@@ -19,12 +19,12 @@ Experimental DeFi protocol to deposits and borrows assets
 - Add SafeMath operations
 - Add annual rates, no of blocks per year, then calculate the block rates
 - Price market provider, in Controller
-- Increase Market MANTISSA (maybe 1e18)
 - Emit events in public operations
 - Deploy scripts for other platforms
 - Compile and test documentation
 - Deploy documentation
 - Use reserves in Market contract
+- Review total supply vs pending borrows vs cash
 
 ## LICENSE
 

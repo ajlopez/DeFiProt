@@ -32,7 +32,7 @@ contract Market is MarketInterface {
     mapping (address => SupplySnapshot) supplies;
     mapping (address => BorrowSnapshot) borrows;
     
-    uint constant FACTOR = 1e6;
+    uint constant FACTOR = 1e18;
     
     constructor(ERC20 _token, uint _baseBorrowRate) public {
         owner = msg.sender;

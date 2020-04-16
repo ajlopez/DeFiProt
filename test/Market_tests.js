@@ -9,14 +9,14 @@ contract('Market', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
     
-    const FACTOR = 1000000;
+    const FACTOR = 1000000000000000000;
 
     describe('initial state', function () {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, 1000);
+            this.market = await Market.new(this.token.address, FACTOR / 1000);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-            this.market2 = await Market.new(this.token2.address, 1000);
+            this.market2 = await Market.new(this.token2.address, FACTOR / 1000);
             
             this.controller = await Controller.new();
             await this.controller.setCollateralFactor(2000000);
@@ -63,13 +63,13 @@ contract('Market', function (accounts) {
         it('base borrow rate', async function () {
             const borrowRate = await this.market.baseBorrowRate();
             
-            assert.equal(borrowRate, 1000);
+            assert.equal(borrowRate, FACTOR / 1000);
         });
         
         it('initial borrow rate per block', async function () {
             const borrowRate = await this.market.borrowRatePerBlock();
             
-            assert.equal(borrowRate, 1000);
+            assert.equal(borrowRate, FACTOR / 1000);
         });
         
         it('initial supply rate per block', async function () {
@@ -101,15 +101,15 @@ contract('Market', function (accounts) {
         }),
         
         it('get borrow rate', async function () {
-            assert.equal(await this.market.getBorrowRate(0, 0, 0), 1000);
-            assert.equal(await this.market.getBorrowRate(1000, 1000, 0), FACTOR / 2 / 1000 + 1000);
-            assert.equal(await this.market.getBorrowRate(2000, 1000, 1000), FACTOR / 2 / 1000 + 1000);
+            assert.equal(await this.market.getBorrowRate(0, 0, 0), FACTOR / 1000);
+            assert.equal(await this.market.getBorrowRate(1000, 1000, 0), FACTOR / 2 / 1000 + FACTOR / 1000);
+            assert.equal(await this.market.getBorrowRate(2000, 1000, 1000), FACTOR / 2 / 1000 + FACTOR / 1000);
         }),
         
         it('get supply rate', async function () {
             assert.equal(await this.market.getSupplyRate(0, 0, 0), 0);
-            assert.equal(await this.market.getSupplyRate(1000, 1000, 0), 1 / 2 * (FACTOR / 2 / 1000 + 1000));
-            assert.equal(await this.market.getSupplyRate(2000, 1000, 1000), 1 / 2 * (FACTOR / 2 / 1000 + 1000));
+            assert.equal(await this.market.getSupplyRate(1000, 1000, 0), 1 / 2 * (FACTOR / 2 / 1000 + FACTOR / 1000));
+            assert.equal(await this.market.getSupplyRate(2000, 1000, 1000), 1 / 2 * (FACTOR / 2 / 1000 + FACTOR / 1000));
         }),
         
         it('mint amount', async function () {
@@ -136,7 +136,7 @@ contract('Market', function (accounts) {
             
             const borrowRate = await this.market.borrowRatePerBlock();
             
-            assert.equal(borrowRate, 1000);
+            assert.equal(borrowRate, FACTOR / 1000);
         });
         
         it('cannot mint amount without enough tokens', async function () {
@@ -233,9 +233,9 @@ contract('Market', function (accounts) {
         
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, 1000);
+            this.market = await Market.new(this.token.address, FACTOR / 1000);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-            this.market2 = await Market.new(this.token2.address, 1000);
+            this.market2 = await Market.new(this.token2.address, FACTOR / 1000);
             this.controller = await Controller.new();
 
             await this.market.setController(this.controller.address);
@@ -320,17 +320,17 @@ contract('Market', function (accounts) {
 
             const borrowRate = (await this.market.borrowRatePerBlock()).toNumber();
             
-            assert.equal(borrowRate, Math.floor(FACTOR * 1000 / (1000 + 1000) / 1000) + 1000);
+            assert.equal(borrowRate, Math.floor(FACTOR * 1000 / (1000 + 1000) / 1000) + FACTOR / 1000);
         });
         
         it('accrue interest', async function () {
             await this.market.borrow(1000, { from: bob });
 
-            const borrowIndex = (await this.market.borrowIndex()).toNumber();
+            const borrowIndex = parseInt((await this.market.borrowIndex()).toString());
             const borrowRate = (await this.market.borrowRatePerBlock()).toNumber();
             const totalBorrows = (await this.market.totalBorrows()).toNumber();
 
-            const supplyIndex = (await this.market.supplyIndex()).toNumber();
+            const supplyIndex = parseInt((await this.market.supplyIndex()).toString());
             const supplyRate = (await this.market.supplyRatePerBlock()).toNumber();
             const totalSupply = (await this.market.totalSupply()).toNumber();
             
@@ -371,8 +371,8 @@ contract('Market', function (accounts) {
             assert.ok(updatedTotalSupply > totalSupply);
             assert.ok(updatedAliceSupply > totalSupply);
 
-            const newBorrowIndex = (await this.market.borrowIndex()).toNumber();
-            const newSupplyIndex = (await this.market.supplyIndex()).toNumber();
+            const newBorrowIndex = parseInt((await this.market.borrowIndex()).toString());
+            const newSupplyIndex = parseInt((await this.market.supplyIndex()).toString());
 
             console.log('borrow index', borrowIndex);
             console.log('borrow index after accrue interest', newBorrowIndex);
@@ -414,9 +414,9 @@ contract('Market', function (accounts) {
         
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, 1000);
+            this.market = await Market.new(this.token.address, FACTOR / 1000);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-            this.market2 = await Market.new(this.token2.address, 1000);
+            this.market2 = await Market.new(this.token2.address, FACTOR / 1000);
             this.controller = await Controller.new();
 
             await this.market.setController(this.controller.address);
