@@ -24,6 +24,7 @@ Experimental DeFi protocol to deposits and borrows assets
 - Deploy scripts for other platforms
 - Compile and test documentation
 - Deploy documentation
+- Use reserves in Market contract
 
 ## LICENSE
 
