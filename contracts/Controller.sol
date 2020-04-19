@@ -6,7 +6,9 @@ contract Controller {
     address public owner;
     
     mapping (address => bool) public markets;
+    mapping (address => address) public marketsByToken;
     mapping (address => uint) public prices;
+    
     address[] public marketList;
     
     uint public collateralFactor;
@@ -42,7 +44,10 @@ contract Controller {
     }
     
     function addMarket(address market) public onlyOwner {
+        address marketToken = MarketInterface(market).token();
+        require(marketsByToken[marketToken] == address(0));
         markets[market] = true;
+        marketsByToken[marketToken] = market;
         marketList.push(market);
     }
     

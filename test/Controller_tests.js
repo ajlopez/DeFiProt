@@ -28,6 +28,10 @@ contract('Controller', function (accounts) {
             const result = await this.controller.markets(this.market.address);
             
             assert.ok(!result);
+            
+            const marketByToken = await this.controller.marketsByToken(this.token.address);
+            
+            assert.equal(marketByToken, 0);
         });
         
         it('no price', async function () {
@@ -39,6 +43,25 @@ contract('Controller', function (accounts) {
         it('add market', async function () {
             await this.controller.addMarket(this.market.address);
             
+            const result = await this.controller.markets(this.market.address);
+            
+            assert.ok(result);
+            
+            const result2 = await this.controller.marketList(0);
+            
+            assert.equal(result2, this.market.address);
+            
+            const marketByToken = await this.controller.marketsByToken(this.token.address);
+            
+            assert.equal(marketByToken, this.market.address);
+        });
+        
+        it('cannot add market with token in another market', async function () {
+            await this.controller.addMarket(this.market.address);
+            const newMarket = await Market.new(this.token.address, FACTOR / 1000);
+            
+            expectThrow(this.controller.addMarket(newMarket.address));
+
             const result = await this.controller.markets(this.market.address);
             
             assert.ok(result);
