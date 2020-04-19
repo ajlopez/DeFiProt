@@ -34,6 +34,9 @@ contract Market is MarketInterface {
     
     uint constant FACTOR = 1e18;
     
+    event Supply(address user, uint amount);
+    event Redeem(address user, uint amount);
+    
     constructor(ERC20 _token, uint _baseBorrowRate) public {
         owner = msg.sender;
         token = _token;
@@ -126,6 +129,8 @@ contract Market is MarketInterface {
     
     function supply(uint amount) public {
         supplyInternal(msg.sender, amount);
+        
+        emit Supply(msg.sender, amount);
     }
     
     function supplyInternal(address supplier, uint amount) internal {
@@ -145,6 +150,8 @@ contract Market is MarketInterface {
     
     function redeem(uint amount) public {
         redeemInternal(msg.sender, amount);
+        
+        emit Redeem(msg.sender, amount);
     }
     
     function redeemInternal(address supplier, uint amount) internal {

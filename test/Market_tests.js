@@ -112,9 +112,17 @@ contract('Market', function (accounts) {
             assert.equal(await this.market.getSupplyRate(2000, 1000, 1000), 1 / 2 * (FACTOR / 2 / 1000 + FACTOR / 1000));
         }),
         
-        it('mint amount', async function () {
+        it('supply token amount', async function () {
             await this.token.approve(this.market.address, 1000, { from: alice });
-            await this.market.supply(1000, { from: alice });
+            const supplyResult = await this.market.supply(1000, { from: alice });
+
+            assert.ok(supplyResult);
+            assert.ok(supplyResult.logs);
+            assert.equal(supplyResult.logs.length, 1);
+            assert.equal(supplyResult.logs[0].event, 'Supply');
+            assert.equal(supplyResult.logs[0].address, this.market.address);
+            assert.equal(supplyResult.logs[0].args.user, alice);
+            assert.equal(supplyResult.logs[0].args.amount, 1000);
             
             const aliceMarketSupply = await this.market.supplyOf(alice);
             const bobMarketSupply = await this.market.supplyOf(bob);
@@ -139,7 +147,7 @@ contract('Market', function (accounts) {
             assert.equal(borrowRate, FACTOR / 1000);
         });
         
-        it('cannot mint amount without enough tokens', async function () {
+        it('cannot supply token amount without enough tokens', async function () {
             await this.token.approve(this.market.address, 500, { from: alice });
             expectThrow(this.market.supply(1000, { from: alice }));
             
@@ -162,7 +170,7 @@ contract('Market', function (accounts) {
             assert.equal(cash, 0);
         });
         
-        it('redeem amount', async function () {
+        it('redeem token amount', async function () {
             await this.market.setController(this.controller.address);
             await this.market2.setController(this.controller.address);
             
@@ -181,7 +189,15 @@ contract('Market', function (accounts) {
             
             assert.equal(marketBalance, 1000);
             
-            await this.market.redeem(500, { from: alice });
+            const redeemResult = await this.market.redeem(500, { from: alice });
+            
+            assert.ok(redeemResult);
+            assert.ok(redeemResult.logs);
+            assert.equal(redeemResult.logs.length, 1);
+            assert.equal(redeemResult.logs[0].event, 'Redeem');
+            assert.equal(redeemResult.logs[0].address, this.market.address);
+            assert.equal(redeemResult.logs[0].args.user, alice);
+            assert.equal(redeemResult.logs[0].args.amount, 500);
                     
             const newTokenAliceBalance = (await this.token.balanceOf(alice)).toNumber();
             const newAliceMarketSupply = (await this.market.supplyOf(alice)).toNumber();
@@ -256,7 +272,7 @@ contract('Market', function (accounts) {
             creationBlock2 = (await this.market2.accrualBlockNumber()).toNumber();
         });
         
-        it('cannot redeem amount without enough liquidity', async function () {
+        it('cannot redeem token amount without enough liquidity', async function () {
             await this.market2.borrow(1, { from: alice });
             
             const aliceSupply = await this.market.supplyOf(alice);
