@@ -36,6 +36,7 @@ contract Market is MarketInterface {
     
     event Supply(address user, uint amount);
     event Redeem(address user, uint amount);
+    event Borrow(address user, uint amount);
     
     constructor(ERC20 _token, uint _baseBorrowRate) public {
         owner = msg.sender;
@@ -202,6 +203,8 @@ contract Market is MarketInterface {
         borrowSnapshot.interestIndex = borrowIndex;
         
         totalBorrows += amount;
+        
+        emit Borrow(msg.sender, amount);
     }
     
     function accrueInterest() public {
