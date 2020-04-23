@@ -299,8 +299,16 @@ contract('Market', function (accounts) {
 
 
         it('borrow from market using other market as collateral', async function () {
-            await this.market.borrow(1000, { from: bob });
-
+            const borrowResult = await this.market.borrow(1000, { from: bob });
+            
+            assert.ok(borrowResult);
+            assert.ok(borrowResult.logs);
+            assert.ok(borrowResult.logs.length);
+            assert.equal(borrowResult.logs[0].event, 'Borrow');
+            assert.equal(borrowResult.logs[0].address, this.market.address);
+            assert.equal(borrowResult.logs[0].args.user, bob);
+            assert.equal(borrowResult.logs[0].args.amount, 1000);
+            
             const totalBorrows = await this.market.totalBorrows();
 
             assert.equal(totalBorrows, 1000);
