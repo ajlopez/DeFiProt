@@ -37,6 +37,7 @@ contract Market is MarketInterface {
     event Supply(address user, uint amount);
     event Redeem(address user, uint amount);
     event Borrow(address user, uint amount);
+    event PayBorrow(address user, uint amount);
 
     constructor(ERC20 _token, uint _baseBorrowRate) public {
         require(ERC20(_token).totalSupply() >= 0);
@@ -269,6 +270,8 @@ contract Market is MarketInterface {
 
     function payBorrow(uint amount) public {
         payBorrowInternal(msg.sender, msg.sender, amount);
+        
+        emit PayBorrow(msg.sender, amount);
     }
 
     function payBorrowInternal(address payer, address borrower, uint amount) internal {

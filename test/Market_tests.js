@@ -480,7 +480,15 @@ contract('Market', function (accounts) {
 
         it('pay borrow', async function () {
             await this.token.approve(this.market.address, 1000, { from: bob });
-            await this.market.payBorrow(1000, { from: bob });
+            const payBorrowResult = await this.market.payBorrow(1000, { from: bob });
+
+            assert.ok(payBorrowResult);
+            assert.ok(payBorrowResult.logs);
+            assert.ok(payBorrowResult.logs.length);
+            assert.equal(payBorrowResult.logs[0].event, 'PayBorrow');
+            assert.equal(payBorrowResult.logs[0].address, this.market.address);
+            assert.equal(payBorrowResult.logs[0].args.user, bob);
+            assert.equal(payBorrowResult.logs[0].args.amount, 1000);
 
             const totalBorrows = (await this.market.totalBorrows()).toNumber();
             const borrowsByBob = (await this.market.borrowBy(bob)).toNumber();
