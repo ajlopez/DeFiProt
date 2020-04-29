@@ -510,7 +510,19 @@ contract('Market', function (accounts) {
         it('pay too much', async function () {
             await this.token.allocateTo(bob, 10000);
             await this.token.approve(this.market.address, 2000, { from: bob });
-            await this.market.payBorrow(2000, { from: bob });
+            const payBorrowResult = await this.market.payBorrow(2000, { from: bob });
+
+            assert.ok(payBorrowResult);
+            assert.ok(payBorrowResult.logs);
+            assert.ok(payBorrowResult.logs.length);
+            assert.equal(payBorrowResult.logs[0].event, 'PayBorrow');
+            assert.equal(payBorrowResult.logs[0].address, this.market.address);
+            assert.equal(payBorrowResult.logs[0].args.user, bob);
+            assert.equal(payBorrowResult.logs[0].args.amount.toNumber(), 1004);
+            assert.equal(payBorrowResult.logs[1].event, 'Supply');
+            assert.equal(payBorrowResult.logs[1].address, this.market.address);
+            assert.equal(payBorrowResult.logs[1].args.user, bob);
+            assert.equal(payBorrowResult.logs[1].args.amount.toNumber(), 996);
 
             const totalBorrows = (await this.market.totalBorrows()).toNumber();
             const lendingsByBob = (await this.market.supplyOf(bob)).toNumber();

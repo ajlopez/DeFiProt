@@ -269,12 +269,18 @@ contract Market is MarketInterface {
     }
 
     function payBorrow(uint amount) public {
-        payBorrowInternal(msg.sender, msg.sender, amount);
+        uint paid;
+        uint additional;
         
-        emit PayBorrow(msg.sender, amount);
+        (paid, additional) = payBorrowInternal(msg.sender, msg.sender, amount);
+        
+        emit PayBorrow(msg.sender, paid);
+        
+        if (additional > 0)
+            emit Supply(msg.sender, additional);
     }
 
-    function payBorrowInternal(address payer, address borrower, uint amount) internal {
+    function payBorrowInternal(address payer, address borrower, uint amount) internal returns (uint paid, uint supplied) {
         accrueInterest();
 
         BorrowSnapshot storage snapshot = borrows[borrower];
@@ -300,6 +306,8 @@ contract Market is MarketInterface {
 
         if (additional > 0)
             supplyInternal(payer, additional);
+            
+        return (amount, additional);
     }
 }
 
