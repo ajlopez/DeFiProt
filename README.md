@@ -12,6 +12,8 @@ Experimental DeFi protocol to deposits and borrows assets
 - [How Decentralized is DeFi? A Framework for Classifying Lending Protocols](https://hackernoon.com/how-decentralized-is-defi-a-framework-for-classifying-lending-protocols-90981f2c007f)
 - [Math in Solidity (Part 5: Exponent and Logarithm)](https://medium.com/coinmonks/math-in-solidity-part-5-exponent-and-logarithm-9aef8515136e)
 - [Fixing security vulnerabilities in npm dependencies in less than 3 mins](https://itnext.io/fixing-security-vulnerabilities-in-npm-dependencies-in-less-than-3-mins-a53af735261d)
+- [Compound FAQ](https://medium.com/compound-finance/faq-1a2636713b69)
+- [Compound Finance for Dummies](https://ethereumprice.org/guides/article/compound-finance-explained/)
 
 ## To Do
 
