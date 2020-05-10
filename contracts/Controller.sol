@@ -63,7 +63,7 @@ contract Controller {
 
         (supplyValue, borrowValue) = getAccountValues(account);
 
-        borrowValue *= collateralFactor;
+        borrowValue *= collateralFactor + MANTISSA;
         borrowValue /= MANTISSA;
 
         if (borrowValue < supplyValue)

@@ -9,6 +9,7 @@ contract('Market', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
 
+    const MANTISSA = 1000000;
     const FACTOR = 1000000000000000000;
 
     describe('validate proper token erc20 contract passed as parameter', function() {
@@ -26,8 +27,8 @@ contract('Market', function (accounts) {
             this.market2 = await Market.new(this.token2.address, FACTOR / 1000);
 
             this.controller = await Controller.new();
-            await this.controller.setCollateralFactor(2000000);
-            await this.controller.setLiquidationFactor(1500000);
+            await this.controller.setCollateralFactor(1 * MANTISSA);
+            await this.controller.setLiquidationFactor(MANTISSA / 2);
 
             await this.controller.addMarket(this.market.address);
             await this.controller.addMarket(this.market2.address);
@@ -267,8 +268,8 @@ contract('Market', function (accounts) {
             await this.controller.addMarket(this.market2.address);
             await this.controller.setPrice(this.market.address, 1);
             await this.controller.setPrice(this.market2.address, 2);
-            await this.controller.setCollateralFactor(2000000);
-            await this.controller.setLiquidationFactor(1500000);
+            await this.controller.setCollateralFactor(1 * MANTISSA);
+            await this.controller.setLiquidationFactor(MANTISSA / 2);
 
             await this.token.approve(this.market.address, 2000, { from: alice });
             await this.market.supply(2000, { from: alice });
@@ -456,8 +457,8 @@ contract('Market', function (accounts) {
             await this.controller.addMarket(this.market2.address);
             await this.controller.setPrice(this.market.address, 1);
             await this.controller.setPrice(this.market2.address, 2);
-            await this.controller.setCollateralFactor(2000000);
-            await this.controller.setLiquidationFactor(1500000);
+            await this.controller.setCollateralFactor(1 * MANTISSA);
+            await this.controller.setLiquidationFactor(MANTISSA / 2);
 
             await this.token.approve(this.market.address, 2000, { from: alice });
             await this.market.supply(2000, { from: alice });

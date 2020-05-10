@@ -102,15 +102,15 @@ contract('Controller', function (accounts) {
         });
 
         it('set collateral factor', async function () {
-            await this.controller.setCollateralFactor(2000000);
+            await this.controller.setCollateralFactor(1 * MANTISSA);
 
             const factor = await this.controller.collateralFactor();
 
-            assert.equal(factor, 2000000);
+            assert.equal(factor, 1 * MANTISSA);
         });
 
         it('only owner can set collateral factor', async function () {
-            expectThrow(this.controller.setCollateralFactor(2000000, { from: bob }));
+            expectThrow(this.controller.setCollateralFactor(1 * MANTISSA, { from: bob }));
 
             const factor = await this.controller.collateralFactor();
 
@@ -124,15 +124,15 @@ contract('Controller', function (accounts) {
         });
 
         it('set liquidation factor', async function () {
-            await this.controller.setLiquidationFactor(2000000);
+            await this.controller.setLiquidationFactor(1 * MANTISSA);
 
             const factor = await this.controller.liquidationFactor();
 
-            assert.equal(factor, 2000000);
+            assert.equal(factor, 1 * MANTISSA);
         });
 
         it('only owner can set liquidation factor', async function () {
-            expectThrow(this.controller.setLiquidationFactor(2000000, { from: bob }));
+            expectThrow(this.controller.setLiquidationFactor(1 * MANTISSA, { from: bob }));
 
             const factor = await this.controller.liquidationFactor();
 
@@ -189,8 +189,8 @@ contract('Controller', function (accounts) {
             await this.controller.setPrice(this.market.address, 10);
             await this.controller.setPrice(this.market2.address, 20);
 
-            await this.controller.setCollateralFactor(2000000);
-            await this.controller.setLiquidationFactor(1500000);
+            await this.controller.setCollateralFactor(1 * MANTISSA);
+            await this.controller.setLiquidationFactor(MANTISSA / 2);
         });
 
         it('should have two markets registered', async function() {
