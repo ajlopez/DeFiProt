@@ -180,7 +180,7 @@ contract Market is MarketInterface {
 
         (supplierSupplyValue, supplierBorrowValue) = controller.getAccountValues(supplier);
 
-        require(supplierSupplyValue >= supplierBorrowValue * controller.collateralFactor() / controller.MANTISSA());
+        require(supplierSupplyValue >= supplierBorrowValue * (controller.MANTISSA() + controller.collateralFactor()) / controller.MANTISSA());
     }
 
     function borrow(uint amount) public {
