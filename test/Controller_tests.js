@@ -192,6 +192,12 @@ contract('Controller', function (accounts) {
             await this.controller.setCollateralFactor(1 * MANTISSA);
             await this.controller.setLiquidationFactor(MANTISSA / 2);
         });
+        
+        it('initial health factor', async function () {
+            const factor = await this.controller.getAccountHealth(bob);
+            
+            assert.equal(factor, 0);
+        });
 
         it('should have two markets registered', async function() {
             const result = await this.controller.marketListSize({ from: alice });

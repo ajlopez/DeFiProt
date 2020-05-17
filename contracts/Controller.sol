@@ -72,6 +72,21 @@ contract Controller {
         return liquidity;
     }
 
+    function getAccountHealth(address account) public view returns (uint) {
+        uint supplyValue;
+        uint borrowValue;
+
+        (supplyValue, borrowValue) = getAccountValues(account);
+        
+        if (supplyValue == 0 || borrowValue == 0)
+            return 0;
+
+        borrowValue *= liquidationFactor + MANTISSA;
+        borrowValue /= MANTISSA;
+        
+        return supplyValue * MANTISSA / borrowValue;
+    }
+
     function getAccountValues(address account) public view returns (uint supplyValue, uint borrowValue) {
         for (uint k = 0; k < marketList.length; k++) {
             MarketInterface market = MarketInterface(marketList[k]);

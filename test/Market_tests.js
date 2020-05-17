@@ -353,6 +353,15 @@ contract('Market', function (accounts) {
             const borrowRate = (await this.market.borrowRatePerBlock()).toNumber();
 
             assert.equal(borrowRate, Math.floor(FACTOR * 1000 / (1000 + 1000) / 1000) + FACTOR / 1000);
+            
+            const result = await this.controller.getAccountValues(bob);
+
+            assert.equal(result.supplyValue, 8000);
+            assert.equal(result.borrowValue, 1000);
+            
+            const healthFactor = (await this.controller.getAccountHealth(bob)).toNumber();
+
+            assert.ok(healthFactor > MANTISSA);
         });
 
         it('accrue interest', async function () {
