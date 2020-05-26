@@ -32,7 +32,7 @@ contract Market is MarketInterface {
     mapping (address => SupplySnapshot) supplies;
     mapping (address => BorrowSnapshot) borrows;
 
-    uint constant FACTOR = 1e18;
+    uint public constant FACTOR = 1e18;
 
     event Supply(address user, uint amount);
     event Redeem(address user, uint amount);

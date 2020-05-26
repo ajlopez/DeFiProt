@@ -50,6 +50,12 @@ contract('Market', function (accounts) {
             assert.equal(totalSupply, 0);
         });
 
+        it('market factor', async function () {
+            const factor = await this.market.FACTOR();
+
+            assert.equal(factor, 1e18);
+        });
+
         it('initial cash', async function () {
             const cash = await this.market.getCash();
 
