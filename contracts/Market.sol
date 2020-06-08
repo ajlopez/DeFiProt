@@ -309,5 +309,18 @@ contract Market is MarketInterface {
             
         return (amount, additional);
     }
+    
+    function liquidateBorrow(address borrower, uint amount, MarketInterface collateralMarket) public {
+        require(amount > 0);
+        require(borrower != msg.sender);
+        
+        accrueInterest();
+        collateralMarket.accrueInterest();
+
+        uint debt = updatedBorrowBy(borrower);
+        
+        require(debt >= amount);
+        require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+    }
 }
 

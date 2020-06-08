@@ -561,5 +561,58 @@ contract('Market', function (accounts) {
             assert.equal(totalSupply, 3000);
         });
     });
+    
+    describe('liquidate borrow', function () {
+        beforeEach(async function() {
+            this.token = await Token.new(1000000, "Token", 0, "TOK");
+            this.market = await Market.new(this.token.address, FACTOR / 1000);
+            this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
+            this.market2 = await Market.new(this.token2.address, FACTOR / 1000);
+            this.controller = await Controller.new();
+
+            await this.market.setController(this.controller.address);
+            await this.market2.setController(this.controller.address);
+            await this.controller.addMarket(this.market.address);
+            await this.controller.addMarket(this.market2.address);
+            await this.controller.setPrice(this.market.address, 1);
+            await this.controller.setPrice(this.market2.address, 2);
+            await this.controller.setCollateralFactor(1 * MANTISSA);
+            await this.controller.setLiquidationFactor(MANTISSA / 2);
+
+            await this.token.approve(this.market.address, 2000, { from: alice });
+            await this.market.supply(2000, { from: alice });
+            await this.token2.approve(this.market2.address, 4000, { from: bob });
+            await this.market2.supply(4000, { from: bob });
+
+            await this.market.borrow(1000, { from: bob });
+        });
+        
+        it('cannot liquidate using amount 0', async function () {
+            expectThrow(this.market.liquidateBorrow(bob, 0, this.market2.address, { from: alice }));
+        });
+        
+        it('cannot liquidate when borrower is sender', async function () {
+            expectThrow(this.market.liquidateBorrow(bob, 1, this.market2.address, { from: bob }));
+        });
+        
+        it('cannot liquidate more than borrower debt', async function () {
+            await this.token.approve(this.market.address, 2000, { from: alice });
+            expectThrow(this.market.liquidateBorrow(bob, 2000, this.market2.address, { from: alice }));
+        });
+        
+        it('liquidator supplies market tokens', async function () {
+            const initialCash = await this.market.getCash();
+            const initialAliceBalance = await this.token.balanceOf(alice);
+            
+            await this.token.approve(this.market.address, 1000, { from: alice });
+            await this.market.liquidateBorrow(bob, 1000, this.market2.address, { from: alice });
+            
+            const finalCash = await this.market.getCash();
+            const finalAliceBalance = await this.token.balanceOf(alice);
+            
+            assert.equal(finalCash.toNumber(), initialCash.toNumber() + 1000);
+            assert.equal(finalAliceBalance.toNumber(), initialAliceBalance.toNumber() - 1000);            
+        });
+    });
 });
 
