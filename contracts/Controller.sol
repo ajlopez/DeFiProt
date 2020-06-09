@@ -77,7 +77,11 @@ contract Controller {
         uint borrowValue;
 
         (supplyValue, borrowValue) = getAccountValues(account);
-        
+
+        return calculateHealthIndex(supplyValue, borrowValue);
+    }
+    
+    function calculateHealthIndex(uint supplyValue, uint borrowValue) internal view returns (uint) {
         if (supplyValue == 0 || borrowValue == 0)
             return 0;
 
