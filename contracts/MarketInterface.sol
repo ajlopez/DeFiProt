@@ -7,5 +7,6 @@ interface MarketInterface {
     function updatedSupplyOf(address account) external view returns (uint);
     function updatedBorrowBy(address account) external view returns (uint);
     function accrueInterest() external;
+    function transferTo(address sender, address receiver, uint amount) external;
 }
 

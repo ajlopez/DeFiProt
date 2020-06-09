@@ -8,6 +8,7 @@ const expectThrow = require('./utils').expectThrow;
 contract('Market', function (accounts) {
     const alice = accounts[0];
     const bob = accounts[1];
+    const charlie = accounts[2];
 
     const MANTISSA = 1000000;
     const FACTOR = 1000000000000000000;
@@ -585,6 +586,23 @@ contract('Market', function (accounts) {
             await this.market2.supply(4000, { from: bob });
 
             await this.market.borrow(1000, { from: bob });
+        });
+        
+        it('transfer to', async function () {
+            await this.market2.setController(charlie);
+            await this.market2.transferTo(bob, charlie, 3000, { from: charlie });
+            
+            const cash = await this.market2.getCash();
+            const bobSupply = await this.market2.updatedSupplyOf(bob);
+            const charlieBalance = await this.token2.balanceOf(charlie);
+            
+            assert.ok(bobSupply.toNumber() >= 1000 && bobSupply.toNumber() <= 1100);
+            assert.equal(charlieBalance, 3000);
+            assert.equal(cash, 1000);
+        });
+        
+        it('only controller can transfer to', async function () {
+            expectThrow(this.market2.transferTo(bob, charlie, 3000, { from: charlie }));
         });
         
         it('cannot liquidate using amount 0', async function () {

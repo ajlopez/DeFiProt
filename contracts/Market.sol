@@ -152,12 +152,19 @@ contract Market is MarketInterface {
     }
 
     function redeem(uint amount) public {
-        redeemInternal(msg.sender, amount);
+        redeemInternal(msg.sender, msg.sender, amount);
+
+        uint supplierSupplyValue;
+        uint supplierBorrowValue;
+
+        (supplierSupplyValue, supplierBorrowValue) = controller.getAccountValues(msg.sender);
+
+        require(supplierSupplyValue >= supplierBorrowValue * (controller.MANTISSA() + controller.collateralFactor()) / controller.MANTISSA());
 
         emit Redeem(msg.sender, amount);
     }
 
-    function redeemInternal(address supplier, uint amount) internal {
+    function redeemInternal(address supplier, address receiver, uint amount) internal {
         require(token.balanceOf(address(this)) >= amount);
 
         accrueInterest();
@@ -169,18 +176,11 @@ contract Market is MarketInterface {
 
         require(supplySnapshot.supply >= amount);
 
-        require(token.transfer(supplier, amount), "No enough tokens");
+        require(token.transfer(receiver, amount), "No enough tokens");
 
         supplySnapshot.supply -= amount;
 
         totalSupply -= amount;
-
-        uint supplierSupplyValue;
-        uint supplierBorrowValue;
-
-        (supplierSupplyValue, supplierBorrowValue) = controller.getAccountValues(supplier);
-
-        require(supplierSupplyValue >= supplierBorrowValue * (controller.MANTISSA() + controller.collateralFactor()) / controller.MANTISSA());
     }
 
     function borrow(uint amount) public {
@@ -321,6 +321,11 @@ contract Market is MarketInterface {
         
         require(debt >= amount);
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+    }
+    
+    function transferTo(address sender, address receiver, uint amount) public onlyController {
+        require(amount > 0);
+        redeemInternal(sender, receiver, amount);
     }
 }
 
