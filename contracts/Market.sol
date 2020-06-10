@@ -321,6 +321,7 @@ contract Market is MarketInterface {
         
         require(debt >= amount);
         require(token.transferFrom(msg.sender, address(this), amount), "No enough tokens");
+        controller.liquidateCollateral(borrower, msg.sender, amount, collateralMarket);
     }
     
     function transferTo(address sender, address receiver, uint amount) public onlyController {

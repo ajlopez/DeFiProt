@@ -99,5 +99,31 @@ contract Controller {
             borrowValue += market.updatedBorrowBy(account) * price;
         }
     }
+    
+    function liquidateCollateral(address borrower, address liquidator, uint amount, MarketInterface collateralMarket) public onlyMarket {
+        uint price = prices[msg.sender];        
+        require(price > 0);
+
+        uint collateralPrice = prices[address(collateralMarket)];        
+        require(collateralPrice > 0);
+        
+        uint supplyValue;
+        uint borrowValue;
+
+        (supplyValue, borrowValue) = getAccountValues(borrower);
+        require(borrowValue > 0);
+        
+        uint healthIndex = calculateHealthIndex(supplyValue, borrowValue);
+        
+        require(healthIndex <= MANTISSA);
+        
+        uint liquidationValue = amount * price;
+        uint liquidationPercentage = liquidationValue * MANTISSA / borrowValue;
+        uint collateralValue = supplyValue * liquidationPercentage / MANTISSA;
+        
+        uint collateralAmount = collateralValue / collateralPrice;
+        
+        collateralMarket.transferTo(borrower, liquidator, collateralAmount);
+    }
 }
 

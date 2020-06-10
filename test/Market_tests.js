@@ -582,23 +582,23 @@ contract('Market', function (accounts) {
 
             await this.token.approve(this.market.address, 2000, { from: alice });
             await this.market.supply(2000, { from: alice });
-            await this.token2.approve(this.market2.address, 4000, { from: bob });
-            await this.market2.supply(4000, { from: bob });
+            await this.token2.approve(this.market2.address, 1500, { from: bob });
+            await this.market2.supply(1500, { from: bob });
 
             await this.market.borrow(1000, { from: bob });
         });
         
         it('transfer to', async function () {
             await this.market2.setController(charlie);
-            await this.market2.transferTo(bob, charlie, 3000, { from: charlie });
+            await this.market2.transferTo(bob, charlie, 1000, { from: charlie });
             
             const cash = await this.market2.getCash();
             const bobSupply = await this.market2.updatedSupplyOf(bob);
             const charlieBalance = await this.token2.balanceOf(charlie);
             
-            assert.ok(bobSupply.toNumber() >= 1000 && bobSupply.toNumber() <= 1100);
-            assert.equal(charlieBalance, 3000);
-            assert.equal(cash, 1000);
+            assert.ok(bobSupply.toNumber() >= 500 && bobSupply.toNumber() <= 550);
+            assert.equal(charlieBalance, 1000);
+            assert.equal(cash, 500);
         });
         
         it('only controller can transfer to', async function () {
@@ -618,18 +618,50 @@ contract('Market', function (accounts) {
             expectThrow(this.market.liquidateBorrow(bob, 2000, this.market2.address, { from: alice }));
         });
         
-        it('liquidator supplies market tokens', async function () {
-            const initialCash = await this.market.getCash();
-            const initialAliceBalance = await this.token.balanceOf(alice);
+        it('liquidator supplies market tokens and gets collateral tokens', async function () {
+            const initialCash = (await this.market.getCash()).toNumber();
+            const initialCash2 = (await this.market2.getCash()).toNumber();
+            const initialAliceBalance = (await this.token.balanceOf(alice)).toNumber();
+            const initialAliceBalance2 = (await this.token2.balanceOf(alice)).toNumber();
+            
+            await this.controller.setPrice(this.market2.address, 1);
+            
+            const healthIndex = await this.controller.getAccountHealth(bob);
+            
+            assert.ok(healthIndex.toNumber() <= MANTISSA);
             
             await this.token.approve(this.market.address, 1000, { from: alice });
             await this.market.liquidateBorrow(bob, 1000, this.market2.address, { from: alice });
             
-            const finalCash = await this.market.getCash();
-            const finalAliceBalance = await this.token.balanceOf(alice);
+            const finalCash = (await this.market.getCash()).toNumber();
+            const finalCash2 = (await this.market2.getCash()).toNumber();
+            const finalAliceBalance = (await this.token.balanceOf(alice)).toNumber();
+            const finalAliceBalance2 = (await this.token2.balanceOf(alice)).toNumber();
             
-            assert.equal(finalCash.toNumber(), initialCash.toNumber() + 1000);
-            assert.equal(finalAliceBalance.toNumber(), initialAliceBalance.toNumber() - 1000);            
+            console.log('Initial cash 2', initialCash2);
+            console.log('Final cash 2', finalCash2);
+            console.log('Initial Alice balance 2', initialAliceBalance2);
+            console.log('Final Alice balance 2', finalAliceBalance2);
+                        
+            assert.equal(finalCash, initialCash + 1000);
+            assert.equal(finalAliceBalance, initialAliceBalance - 1000);            
+            
+            assert.ok(finalCash2 > initialCash2 - 1500);
+            assert.ok(finalCash2 < initialCash2 - 1450);
+            assert.equal(initialAliceBalance2, 0);
+            assert.ok(finalAliceBalance2 > 1450);
+            assert.ok(finalAliceBalance2 < 1500);
+            
+            assert.equal(finalAliceBalance2 - initialAliceBalance2, initialCash2 - finalCash2);
+        });
+        
+        it('cannot liquidate with health index greater than 1', async function () {
+            const healthIndex = await this.controller.getAccountHealth(bob);
+            
+            assert.ok(healthIndex.toNumber() > MANTISSA);
+            
+            await this.token.approve(this.market.address, 1000, { from: alice });
+            expectThrow(this.market.liquidateBorrow(bob, 1000, this.market2.address, { from: alice }));
         });
     });
 });
