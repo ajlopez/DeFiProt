@@ -2,8 +2,11 @@ pragma solidity >=0.5.0 <0.6.0;
 
 import "./test/ERC20.sol";
 import "./Controller.sol";
+import "./test/SafeMath.sol";
 
 contract Market is MarketInterface {
+    using SafeMath for uint256;
+
     address public owner;
 
     ERC20 public token;
@@ -67,19 +70,19 @@ contract Market is MarketInterface {
         if (borrowed == 0)
             return 0;
 
-        return borrowed * FACTOR / (cash + borrowed - reserves);
+        return borrowed.mul(FACTOR).div(cash.add(borrowed).sub(reserves));
     }
 
     function getBorrowRate(uint cash, uint borrowed, uint reserves) public view returns (uint) {
         uint ur = utilizationRate(cash, borrowed, reserves);
 
-        return ur / 1000 + baseBorrowRate;
+        return ur.div(1000).add(baseBorrowRate);
     }
 
     function getSupplyRate(uint cash, uint borrowed, uint reserves) public view returns (uint) {
         uint borrowRate = getBorrowRate(cash, borrowed, reserves);
 
-        return utilizationRate(cash, borrowed, reserves) * borrowRate / FACTOR;
+        return utilizationRate(cash, borrowed, reserves).mul(borrowRate).div(FACTOR);
     }
 
     function borrowRatePerBlock() public view returns (uint) {
@@ -109,7 +112,7 @@ contract Market is MarketInterface {
 
         (newTotalBorrows, newBorrowIndex) = calculateBorrowDataAtBlock(block.number);
 
-        return snapshot.principal * newBorrowIndex / snapshot.interestIndex;
+        return snapshot.principal.mul(newBorrowIndex).div(snapshot.interestIndex);
     }
 
     function updatedSupplyOf(address user) public view returns (uint) {
@@ -123,7 +126,7 @@ contract Market is MarketInterface {
 
         (newTotalSupply, newSupplyIndex) = calculateSupplyDataAtBlock(block.number);
 
-        return snapshot.supply * newSupplyIndex / snapshot.interestIndex;
+        return snapshot.supply.mul(newSupplyIndex).div(snapshot.interestIndex);
     }
 
     function setController(Controller _controller) public onlyOwner {
@@ -145,10 +148,10 @@ contract Market is MarketInterface {
         SupplySnapshot storage supplySnapshot = supplies[supplier];
 
         supplySnapshot.supply = updatedSupplyOf(supplier);
-        supplies[supplier].supply += amount;
+        supplies[supplier].supply = supplies[supplier].supply.add(amount);
         supplies[supplier].interestIndex = supplyIndex;
 
-        totalSupply += amount;
+        totalSupply = totalSupply.add(amount);
     }
 
     function redeem(uint amount) public {
@@ -159,7 +162,7 @@ contract Market is MarketInterface {
 
         (supplierSupplyValue, supplierBorrowValue) = controller.getAccountValues(msg.sender);
 
-        require(supplierSupplyValue >= supplierBorrowValue * (controller.MANTISSA() + controller.collateralFactor()) / controller.MANTISSA());
+        require(supplierSupplyValue >= supplierBorrowValue.mul(controller.MANTISSA().add(controller.collateralFactor())).div(controller.MANTISSA()));
 
         emit Redeem(msg.sender, amount);
     }
@@ -178,9 +181,9 @@ contract Market is MarketInterface {
 
         require(token.transfer(receiver, amount), "No enough tokens");
 
-        supplySnapshot.supply -= amount;
+        supplySnapshot.supply = supplySnapshot.supply.sub(amount);
 
-        totalSupply -= amount;
+        totalSupply = totalSupply.sub(amount);
     }
 
     function borrow(uint amount) public {
@@ -191,20 +194,20 @@ contract Market is MarketInterface {
         BorrowSnapshot storage borrowSnapshot = borrows[msg.sender];
 
         if (borrowSnapshot.principal > 0) {
-            uint interest = borrowSnapshot.principal * borrowIndex / borrowSnapshot.interestIndex - borrowSnapshot.principal;
+            uint interest = borrowSnapshot.principal.mul(borrowIndex).div(borrowSnapshot.interestIndex).sub(borrowSnapshot.principal);
 
-            borrowSnapshot.principal += interest;
+            borrowSnapshot.principal = borrowSnapshot.principal.add(interest);
             borrowSnapshot.interestIndex = borrowIndex;
         }
 
-        require(controller.getAccountLiquidity(msg.sender) >= controller.prices(address(this)) * amount * 2, "Not enough account liquidity");
+        require(controller.getAccountLiquidity(msg.sender) >= controller.prices(address(this)).mul(amount).mul(2), "Not enough account liquidity");
 
         require(token.transfer(msg.sender, amount), "No enough tokens to borrow");
 
-        borrowSnapshot.principal += amount;
+        borrowSnapshot.principal = borrowSnapshot.principal.add(amount);
         borrowSnapshot.interestIndex = borrowIndex;
 
-        totalBorrows += amount;
+        totalBorrows = totalBorrows.add(amount);
         
         emit Borrow(msg.sender, amount);
     }
@@ -227,11 +230,11 @@ contract Market is MarketInterface {
 
         uint blockDelta = newBlockNumber - accrualBlockNumber;
 
-        uint simpleInterestFactor = blockDelta * borrowRatePerBlock();
-        uint interestAccumulated = simpleInterestFactor * totalBorrows / FACTOR;
+        uint simpleInterestFactor = borrowRatePerBlock().mul(blockDelta);
+        uint interestAccumulated = simpleInterestFactor.mul(totalBorrows).div(FACTOR);
 
-        newBorrowIndex = simpleInterestFactor * borrowIndex / FACTOR + borrowIndex;
-        newTotalBorrows = interestAccumulated + totalBorrows;
+        newBorrowIndex = simpleInterestFactor.mul(borrowIndex).div(FACTOR).add(borrowIndex);
+        newTotalBorrows = interestAccumulated.add(totalBorrows);
     }
 
     function calculateSupplyDataAtBlock(uint newBlockNumber) internal view returns (uint newTotalSupply, uint newSupplyIndex) {
@@ -243,11 +246,11 @@ contract Market is MarketInterface {
 
         uint blockDelta = newBlockNumber - accrualBlockNumber;
 
-        uint simpleInterestFactor = blockDelta * supplyRatePerBlock();
-        uint interestAccumulated = simpleInterestFactor * totalSupply / FACTOR;
+        uint simpleInterestFactor = supplyRatePerBlock().mul(blockDelta);
+        uint interestAccumulated = simpleInterestFactor.mul(totalSupply).div(FACTOR);
 
-        newSupplyIndex = simpleInterestFactor * supplyIndex / FACTOR + supplyIndex;
-        newTotalSupply = interestAccumulated + totalSupply;
+        newSupplyIndex = simpleInterestFactor.mul(supplyIndex).div(FACTOR).add(supplyIndex);
+        newTotalSupply = interestAccumulated.add(totalSupply);
     }
 
     function getUpdatedTotalBorrows() public view returns (uint) {
@@ -287,22 +290,22 @@ contract Market is MarketInterface {
 
         require(snapshot.principal > 0);
 
-        uint interest = snapshot.principal * borrowIndex / snapshot.interestIndex - snapshot.principal;
+        uint interest = snapshot.principal.mul(borrowIndex).div(snapshot.interestIndex).sub(snapshot.principal);
 
-        snapshot.principal += interest;
+        snapshot.principal = snapshot.principal.add(interest);
         snapshot.interestIndex = borrowIndex;
 
         uint additional;
 
         if (snapshot.principal < amount) {
-            additional = amount - snapshot.principal;
+            additional = amount.sub(snapshot.principal);
             amount = snapshot.principal;
         }
 
         require(token.transferFrom(payer, address(this), amount), "No enough tokens");
 
-        snapshot.principal -= amount;
-        totalBorrows -= amount;
+        snapshot.principal = snapshot.principal.sub(amount);
+        totalBorrows = totalBorrows.sub(amount);
 
         if (additional > 0)
             supplyInternal(payer, additional);
