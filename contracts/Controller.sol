@@ -1,8 +1,11 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 import "./MarketInterface.sol";
+import "./test/SafeMath.sol";
 
 contract Controller {
+    using SafeMath for uint256;
+
     address public owner;
 
     mapping (address => bool) public markets;
@@ -63,11 +66,11 @@ contract Controller {
 
         (supplyValue, borrowValue) = getAccountValues(account);
 
-        borrowValue *= collateralFactor + MANTISSA;
-        borrowValue /= MANTISSA;
+        borrowValue = borrowValue.mul(collateralFactor.add(MANTISSA));
+        borrowValue = borrowValue.div(MANTISSA);
 
         if (borrowValue < supplyValue)
-            liquidity = supplyValue - borrowValue;
+            liquidity = supplyValue.sub(borrowValue);
 
         return liquidity;
     }
@@ -85,18 +88,19 @@ contract Controller {
         if (supplyValue == 0 || borrowValue == 0)
             return 0;
 
-        borrowValue *= liquidationFactor + MANTISSA;
-        borrowValue /= MANTISSA;
+        borrowValue = borrowValue.mul(liquidationFactor.add(MANTISSA));
+        borrowValue = borrowValue.div(MANTISSA);
         
-        return supplyValue * MANTISSA / borrowValue;
+        return supplyValue.mul(MANTISSA).div(borrowValue);
     }
 
     function getAccountValues(address account) public view returns (uint supplyValue, uint borrowValue) {
         for (uint k = 0; k < marketList.length; k++) {
             MarketInterface market = MarketInterface(marketList[k]);
             uint price = prices[marketList[k]];
-            supplyValue += market.updatedSupplyOf(account) * price;
-            borrowValue += market.updatedBorrowBy(account) * price;
+            
+            supplyValue = supplyValue.add(market.updatedSupplyOf(account).mul(price));
+            borrowValue = borrowValue.add(market.updatedBorrowBy(account).mul(price));
         }
     }
     
@@ -117,11 +121,11 @@ contract Controller {
         
         require(healthIndex <= MANTISSA);
         
-        uint liquidationValue = amount * price;
-        uint liquidationPercentage = liquidationValue * MANTISSA / borrowValue;
-        uint collateralValue = supplyValue * liquidationPercentage / MANTISSA;
+        uint liquidationValue = amount.mul(price);
+        uint liquidationPercentage = liquidationValue.mul(MANTISSA).div(borrowValue);
+        uint collateralValue = supplyValue.mul(liquidationPercentage).div(MANTISSA);
         
-        uint collateralAmount = collateralValue / collateralPrice;
+        uint collateralAmount = collateralValue.div(collateralPrice);
         
         collateralMarket.transferTo(borrower, liquidator, collateralAmount);
     }
