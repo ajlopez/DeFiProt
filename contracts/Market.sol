@@ -21,6 +21,8 @@ contract Market is MarketInterface {
     uint public borrowIndex;
     uint public totalBorrows;
     uint public baseBorrowRate;
+    
+    uint public blocksPerYear;
 
     struct SupplySnapshot {
         uint supply;
@@ -42,13 +44,14 @@ contract Market is MarketInterface {
     event Borrow(address user, uint amount);
     event PayBorrow(address user, uint amount);
 
-    constructor(ERC20 _token, uint _baseBorrowRate) public {
+    constructor(ERC20 _token, uint _baseBorrowAnnualRate, uint _blocksPerYear) public {
         require(ERC20(_token).totalSupply() >= 0);
         owner = msg.sender;
         token = _token;
         borrowIndex = FACTOR;
         supplyIndex = FACTOR;
-        baseBorrowRate = _baseBorrowRate;
+        blocksPerYear = _blocksPerYear;
+        baseBorrowRate = _baseBorrowAnnualRate.div(_blocksPerYear);
         accrualBlockNumber = block.number;
     }
 

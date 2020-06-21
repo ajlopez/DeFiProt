@@ -13,11 +13,13 @@ contract('Controller', function (accounts) {
 
     const MANTISSA = 1000000;
     const FACTOR = 1000000000000000000;
+    const BLOCKS_PER_YEAR = 10000000;
+    const ANNUAL_RATE = "10000000000000000000000"; // FACTOR / 1000 * BLOCKS_PER_YEAR
 
     describe('contract dependency validation', function() {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, FACTOR / 1000);
+            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
             this.controller = await Controller.new();
             this.nonMarket = await NonMarket.new();
         });
@@ -32,7 +34,7 @@ contract('Controller', function (accounts) {
     describe('one token and one market', function () {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, FACTOR / 1000);
+            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
             this.controller = await Controller.new();
         });
 
@@ -74,7 +76,7 @@ contract('Controller', function (accounts) {
 
         it('cannot add market with token in another market', async function () {
             await this.controller.addMarket(this.market.address);
-            const newMarket = await Market.new(this.token.address, FACTOR / 1000);
+            const newMarket = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
 
             expectThrow(this.controller.addMarket(newMarket.address));
 
@@ -177,8 +179,8 @@ contract('Controller', function (accounts) {
             await this.token.allocateTo(charlie, 1000000);
             await this.token2.allocateTo(charlie, 1000000);
 
-            this.market = await Market.new(this.token.address, 1000);
-            this.market2 = await Market.new(this.token2.address, 1000);
+            this.market = await Market.new(this.token.address, 1000 * BLOCKS_PER_YEAR, BLOCKS_PER_YEAR);
+            this.market2 = await Market.new(this.token2.address, 1000 * BLOCKS_PER_YEAR, BLOCKS_PER_YEAR);
 
             this.controller = await Controller.new();
             await this.controller.addMarket(this.market.address);
