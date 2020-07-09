@@ -631,9 +631,15 @@ contract('Market', function (accounts) {
             const healthIndex = await this.controller.getAccountHealth(bob);
             
             assert.ok(healthIndex.toNumber() <= MANTISSA);
+
+            const initialTotalBorrows = (await this.market.totalBorrows()).toNumber();
+            const initialBorrowsByBob = (await this.market.borrowBy(bob)).toNumber();
             
             await this.token.approve(this.market.address, 1000, { from: alice });
             await this.market.liquidateBorrow(bob, 1000, this.market2.address, { from: alice });
+
+            const totalBorrows = (await this.market.totalBorrows()).toNumber();
+            const borrowsByBob = (await this.market.borrowBy(bob)).toNumber();
             
             const finalCash = (await this.market.getCash()).toNumber();
             const finalCash2 = (await this.market2.getCash()).toNumber();
@@ -644,6 +650,10 @@ contract('Market', function (accounts) {
             console.log('Final cash 2', finalCash2);
             console.log('Initial Alice balance 2', initialAliceBalance2);
             console.log('Final Alice balance 2', finalAliceBalance2);
+            console.log('Initial total borrows', initialTotalBorrows);
+            console.log('Final total borrows', totalBorrows);            
+            console.log('Initial Bob borrows', initialBorrowsByBob);
+            console.log('Final Bob borrows', borrowsByBob);
                         
             assert.equal(finalCash, initialCash + 1000);
             assert.equal(finalAliceBalance, initialAliceBalance - 1000);            
@@ -655,6 +665,9 @@ contract('Market', function (accounts) {
             assert.ok(finalAliceBalance2 < 1500);
             
             assert.equal(finalAliceBalance2 - initialAliceBalance2, initialCash2 - finalCash2);
+            
+            assert.ok(borrowsByBob < initialBorrowsByBob);
+            assert.ok(totalBorrows < initialTotalBorrows);
         });
         
         it('cannot liquidate with health index greater than 1', async function () {
