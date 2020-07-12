@@ -134,8 +134,7 @@ contract('Market', function (accounts) {
             const supplyResult = await this.market.supply(1000, { from: alice });
 
             assert.ok(supplyResult);
-            assert.ok(supplyResult.logs);
-            assert.equal(supplyResult.logs.length, 1);
+            assert.ok(supplyResult.logs);            assert.equal(supplyResult.logs.length, 1);
             assert.equal(supplyResult.logs[0].event, 'Supply');
             assert.equal(supplyResult.logs[0].address, this.market.address);
             assert.equal(supplyResult.logs[0].args.user, alice);
@@ -636,7 +635,14 @@ contract('Market', function (accounts) {
             const initialBorrowsByBob = (await this.market.borrowBy(bob)).toNumber();
             
             await this.token.approve(this.market.address, 1000, { from: alice });
-            await this.market.liquidateBorrow(bob, 1000, this.market2.address, { from: alice });
+            const liquidateResult = await this.market.liquidateBorrow(bob, 1000, this.market2.address, { from: alice });
+            
+            assert.ok(liquidateResult.logs);            assert.equal(liquidateResult.logs.length, 1);
+            assert.equal(liquidateResult.logs[0].event, 'LiquidateBorrow');
+            assert.equal(liquidateResult.logs[0].args.borrower, bob);
+            assert.equal(liquidateResult.logs[0].args.amount, 1000);
+            assert.equal(liquidateResult.logs[0].args.liquidator, alice);
+            assert.equal(liquidateResult.logs[0].args.collateralMarket, this.market2.address);
 
             const totalBorrows = (await this.market.totalBorrows()).toNumber();
             const borrowsByBob = (await this.market.borrowBy(bob)).toNumber();
@@ -645,6 +651,8 @@ contract('Market', function (accounts) {
             const finalCash2 = (await this.market2.getCash()).toNumber();
             const finalAliceBalance = (await this.token.balanceOf(alice)).toNumber();
             const finalAliceBalance2 = (await this.token2.balanceOf(alice)).toNumber();
+
+            assert.equal(liquidateResult.logs[0].args.collateralAmount, finalAliceBalance2 - initialAliceBalance2);
             
             console.log('Initial cash 2', initialCash2);
             console.log('Final cash 2', finalCash2);

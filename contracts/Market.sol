@@ -43,6 +43,7 @@ contract Market is MarketInterface {
     event Redeem(address user, uint amount);
     event Borrow(address user, uint amount);
     event PayBorrow(address user, uint amount);
+    event LiquidateBorrow(address borrower, uint amount, address liquidator, address collateralMarket, uint collateralAmount);
 
     constructor(ERC20 _token, uint _baseBorrowAnnualRate, uint _blocksPerYear) public {
         require(ERC20(_token).totalSupply() >= 0);
@@ -328,14 +329,14 @@ contract Market is MarketInterface {
         require(debt >= amount);
         require(token.balanceOf(msg.sender) >= amount);
         
-        controller.liquidateCollateral(borrower, msg.sender, amount, collateralMarket);
+        uint collateralAmount = controller.liquidateCollateral(borrower, msg.sender, amount, collateralMarket);
 
         uint paid;
         uint additional;
 
         (paid, additional) = payBorrowInternal(msg.sender, borrower, amount);
         
-        emit PayBorrow(msg.sender, paid);
+        emit LiquidateBorrow(borrower, paid, msg.sender, address(collateralMarket), collateralAmount);
         
         if (additional > 0)
             emit Supply(msg.sender, additional);

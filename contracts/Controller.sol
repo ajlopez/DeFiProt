@@ -104,7 +104,7 @@ contract Controller {
         }
     }
     
-    function liquidateCollateral(address borrower, address liquidator, uint amount, MarketInterface collateralMarket) public onlyMarket {
+    function liquidateCollateral(address borrower, address liquidator, uint amount, MarketInterface collateralMarket) public onlyMarket returns (uint collateralAmount)  {
         uint price = prices[msg.sender];        
         require(price > 0);
 
@@ -125,7 +125,7 @@ contract Controller {
         uint liquidationPercentage = liquidationValue.mul(MANTISSA).div(borrowValue);
         uint collateralValue = supplyValue.mul(liquidationPercentage).div(MANTISSA);
         
-        uint collateralAmount = collateralValue.div(collateralPrice);
+        collateralAmount = collateralValue.div(collateralPrice);
         
         collateralMarket.transferTo(borrower, liquidator, collateralAmount);
     }
