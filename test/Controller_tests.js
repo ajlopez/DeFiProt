@@ -13,8 +13,8 @@ contract('Controller', function (accounts) {
 
     const MANTISSA = 1000000;
     const FACTOR = 1000000000000000000;
-    const BLOCKS_PER_YEAR = 10000000;
-    const ANNUAL_RATE = "10000000000000000000000"; // FACTOR / 1000 * BLOCKS_PER_YEAR
+    const BLOCKS_PER_YEAR = 1000000;
+    const ANNUAL_RATE = "1000000000000000000000"; // FACTOR / 1000 * BLOCKS_PER_YEAR
 
     describe('contract dependency validation', function() {
         beforeEach(async function() {

@@ -12,8 +12,8 @@ contract('Market', function (accounts) {
 
     const MANTISSA = 1000000;
     const FACTOR = 1000000000000000000;
-    const BLOCKS_PER_YEAR = 10000000;
-    const ANNUAL_RATE = "10000000000000000000000"; // FACTOR / 1000 * BLOCKS_PER_YEAR
+    const BLOCKS_PER_YEAR = 1000000;
+    const ANNUAL_RATE = "1000000000000000000000"; // FACTOR / 1000 * BLOCKS_PER_YEAR
 
     describe('validate proper token erc20 contract passed as parameter', function() {
         it('should avoid creating a market upon non erc20 smart contract passed', async function() {
