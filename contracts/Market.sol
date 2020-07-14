@@ -21,6 +21,7 @@ contract Market is MarketInterface {
     uint public borrowIndex;
     uint public totalBorrows;
     uint public baseBorrowRate;
+    uint public utilizationRateFraction;
     
     uint public blocksPerYear;
 
@@ -45,7 +46,7 @@ contract Market is MarketInterface {
     event PayBorrow(address user, uint amount);
     event LiquidateBorrow(address borrower, uint amount, address liquidator, address collateralMarket, uint collateralAmount);
 
-    constructor(ERC20 _token, uint _baseBorrowAnnualRate, uint _blocksPerYear) public {
+    constructor(ERC20 _token, uint _baseBorrowAnnualRate, uint _blocksPerYear, uint _utilizationRateFraction) public {
         require(ERC20(_token).totalSupply() >= 0);
         owner = msg.sender;
         token = _token;
@@ -54,6 +55,7 @@ contract Market is MarketInterface {
         blocksPerYear = _blocksPerYear;
         baseBorrowRate = _baseBorrowAnnualRate.div(_blocksPerYear);
         accrualBlockNumber = block.number;
+        utilizationRateFraction = _utilizationRateFraction.div(_blocksPerYear);
     }
 
     modifier onlyOwner() {
@@ -80,7 +82,7 @@ contract Market is MarketInterface {
     function getBorrowRate(uint cash, uint borrowed, uint reserves) public view returns (uint) {
         uint ur = utilizationRate(cash, borrowed, reserves);
 
-        return ur.div(1000).add(baseBorrowRate);
+        return ur.mul(utilizationRateFraction).div(FACTOR).add(baseBorrowRate);
     }
 
     function getSupplyRate(uint cash, uint borrowed, uint reserves) public view returns (uint) {

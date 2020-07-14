@@ -14,20 +14,21 @@ contract('Market', function (accounts) {
     const FACTOR = 1000000000000000000;
     const BLOCKS_PER_YEAR = 1000000;
     const ANNUAL_RATE = "1000000000000000000000"; // FACTOR / 1000 * BLOCKS_PER_YEAR
+    const UTILIZATION_RATE_FRACTION = "1000000000000000000000"; // FACTOR / 1000 * BLOCKS_PER_YEAR
 
     describe('validate proper token erc20 contract passed as parameter', function() {
         it('should avoid creating a market upon non erc20 smart contract passed', async function() {
             const controller = await Controller.new();
-            expectThrow(Market.new(controller.address, ANNUAL_RATE, BLOCKS_PER_YEAR));
+            expectThrow(Market.new(controller.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION));
         });
     });
 
     describe('initial state', function () {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
 
             this.controller = await Controller.new();
             await this.controller.setCollateralFactor(1 * MANTISSA);
@@ -119,7 +120,7 @@ contract('Market', function (accounts) {
 
         it('get borrow rate', async function () {
             assert.equal(await this.market.getBorrowRate(0, 0, 0), FACTOR / 1000);
-            assert.equal(await this.market.getBorrowRate(1000, 1000, 0), FACTOR / 2 / 1000 + FACTOR / 1000);
+            assert.equal((await this.market.getBorrowRate(1000, 1000, 0)).toNumber(), FACTOR / 2 / 1000 + FACTOR / 1000);
             assert.equal(await this.market.getBorrowRate(2000, 1000, 1000), FACTOR / 2 / 1000 + FACTOR / 1000);
         }),
 
@@ -265,9 +266,9 @@ contract('Market', function (accounts) {
 
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
             this.controller = await Controller.new();
 
             await this.market.setController(this.controller.address);
@@ -463,9 +464,9 @@ contract('Market', function (accounts) {
 
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
             this.controller = await Controller.new();
 
             await this.market.setController(this.controller.address);
@@ -567,9 +568,9 @@ contract('Market', function (accounts) {
     describe('liquidate borrow', function () {
         beforeEach(async function() {
             this.token = await Token.new(1000000, "Token", 0, "TOK");
-            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market = await Market.new(this.token.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
             this.token2 = await Token.new(1000000, "Token 2", 0, "TK2", { from: bob });
-            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR);
+            this.market2 = await Market.new(this.token2.address, ANNUAL_RATE, BLOCKS_PER_YEAR, UTILIZATION_RATE_FRACTION);
             this.controller = await Controller.new();
 
             await this.market.setController(this.controller.address);
