@@ -17,15 +17,8 @@ Experimental DeFi protocol to deposits and borrows assets
 
 ## To Do
 
-- Review test cannot redeem without enought liquidity
-- Control cash after borrow operations
 - Review reserves role
-- Consider 1000000-1050000 blocks per year
-- Borrow liquidation operation
-- Add SafeMath operations
-- Add annual rates, no of blocks per year, then calculate the block rates
 - Price market provider, in Controller
-- Emit events in public operations
 - Deploy scripts for other platforms
 - Compile and test documentation
 - Deploy documentation
