@@ -9,10 +9,11 @@
     "dev": "lite-server"
   },
   "dependencies": {
-    "minimist": "^1.2.5",
-    "lite-server": "^2.5.4"
+    "lite-server": "^2.6.1",
+    "minimist": "^1.2.5"
   },
   "resolutions": {
-    "minimist": "^1.2.5"
+    "minimist": "^1.2.5",
+    "axios": "^0.21.1"
   }
 }
